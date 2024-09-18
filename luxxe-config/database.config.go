@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/gofiber/fiber/v2/log"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -17,6 +18,11 @@ func ConnectMongoDB() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	// Send a ping to confirm a successful connection
+  if err := MongoClient.Database("admin").RunCommand(context.TODO(), bson.D{{Key: "ping", Value: 1}}).Err(); err != nil {
+    panic(err)
+  }
+  fmt.Println("Pinged your deployment. You successfully connected to MongoDB!")
 	fmt.Println("Live MongoDB Database connected.")
 }
 
