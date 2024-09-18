@@ -4,7 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type FiberMiddleWare func(ctx *fiber.Ctx) error
+type FiberMiddleware func(ctx *fiber.Ctx) error
 
 type TokenGen struct {
 	Ctx       *fiber.Ctx
