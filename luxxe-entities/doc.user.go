@@ -15,6 +15,7 @@ type User struct {
 	Email                string             `json:"email" bson:"email"`
 	EmailYetToBeVerified string             `json:"emailYetToBeVerified" bson:"emailYetToBeVerified"`
 	Password             string             `json:"password" bson:"password"`
+	AccountRole          AccountRole        `json:"accountRole" bson:"accountRole"`
 	CreatedAt            time.Time          `json:"createdAt" bson:"createdAt"`
 	UpdatedAt            time.Time          `json:"updatedAt" bson:"updatedAt"`
 }
