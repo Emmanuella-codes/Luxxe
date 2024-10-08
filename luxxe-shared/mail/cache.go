@@ -3,6 +3,8 @@ package mail
 import (
 	"sync"
 	"time"
+
+	entities "github.com/Emmanuella-codes/Luxxe/luxxe-entities"
 )
 
 type SendPulseFetchKeyResponse struct {

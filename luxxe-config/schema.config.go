@@ -24,6 +24,16 @@ type Config struct {
 	PORT                         string
 	ENV                          ServerEnvironment
 	API_DOCUMENTATION_URL        string
+	SENDGRID_API_KEY             string
+	MAILDATASENDERNAME           string
+	MAILDATASENDER               string
+	MAILDATARECIPIENTNAME        string
+	MAILDATARECIPIENT            string
+	MAILDATASUBJECT              string
+	SENDPULSE_GRANT_TYPE         string
+	SENDPULSE_CLIENT_ID          string
+	SENDPULSE_CLIENT_SECRET      string
+	SENDPULSE_BASE_URL           string
 }
 
 var EnvConfig = Config{}
