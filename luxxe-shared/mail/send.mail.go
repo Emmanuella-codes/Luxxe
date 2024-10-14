@@ -2,7 +2,7 @@ package mail
 
 type MailClient string
 
-const SendPulseMailClient MailClient = "sendpulse"
+const MailTrapMailClient MailClient = "mailtrap"
 
 func SendMail(
 	mailInfo *MailInfoStruct,
@@ -10,6 +10,6 @@ func SendMail(
 	mailClients ...MailClient,
 ) {
 	if len(mailClients) == 0 {
-		SendMailBySendPulse(mailInfo)
+		SendMailByMailTrap(mailInfo)
 	}  
 }

@@ -4,5 +4,5 @@ func InitModels() {
 	initUser()
 	initAuditLog()
 	initEmailStats()
-	initSendPulseKey()
+	initTempStore()
 }
