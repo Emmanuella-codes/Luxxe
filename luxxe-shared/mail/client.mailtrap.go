@@ -2,12 +2,20 @@ package mail
 
 import (
 	"fmt"
+	"log"
 
 	config "github.com/Emmanuella-codes/Luxxe/luxxe-config"
 	gomail "gopkg.in/mail.v2"
 )
 
 func SendMailByMailTrap(mailInfo *MailInfoStruct) {
+  // Log Mailtrap credentials before proceeding
+  fmt.Printf("Using Mailtrap credentials: %s, %s\n", config.EnvConfig.MAILTRAP_USERNAME, config.EnvConfig.MAILTRAP_PASSWORD)
+
+  if config.EnvConfig.MAILTRAP_USERNAME == "" || config.EnvConfig.MAILTRAP_PASSWORD == "" {
+      log.Fatal("Mailtrap username or password is not set in environment variables.")
+  }
+
   // create a new message
   message := gomail.NewMessage()
 

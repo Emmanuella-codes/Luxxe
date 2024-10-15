@@ -16,6 +16,10 @@ type SetStruct struct {
 }
 
 func Set(ctx context.Context, setStrPtr *SetStruct) {
+	if repo_tempstore.TempStoreRepo == nil {
+		panic("TempStoreRepo is not initialized")
+	}
+
 	key, value, expirationTime := setStrPtr.Key, setStrPtr.Value, setStrPtr.ExpirationTime
 
 	_, err := repo_tempstore.TempStoreRepo.QueryByKey(ctx, key)

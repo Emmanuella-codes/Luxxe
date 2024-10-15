@@ -7,6 +7,7 @@ import (
 	"github.com/Emmanuella-codes/Luxxe/luxxe-auth/messages"
 	"github.com/Emmanuella-codes/Luxxe/luxxe-auth/pipes"
 	auth_services "github.com/Emmanuella-codes/Luxxe/luxxe-auth/services"
+	config "github.com/Emmanuella-codes/Luxxe/luxxe-config"
 	repo_user "github.com/Emmanuella-codes/Luxxe/luxxe-repositories/user"
 	shared_api "github.com/Emmanuella-codes/Luxxe/luxxe-shared/api"
 )
@@ -212,4 +213,32 @@ func resetUserPasswordByID(ctx *fiber.Ctx) error {
 			"payload":    res.Data,
 		},
 	)
+}
+
+func verifyEmail(ctx *fiber.Ctx) error {
+	VerifyEmail := new(dtos.VerifyEmailDTO)
+
+	if err := ctx.QueryParser(VerifyEmail); err != nil {
+		return err
+	}
+
+	success, err := shared_api.ValidateAPIData(VerifyEmail)
+	if !success {
+		return ctx.Status(fiber.StatusBadRequest).JSON(
+			fiber.Map{
+				"statusCode": fiber.StatusBadRequest,
+				"message":    "Invalid request data",
+				"payload":    map[string]string{},
+				"error":      err.Error(),
+			},
+		)
+	}
+
+	VerifyEmail.UserID = ctx.Query("userID")
+
+	pipes.VerifyEmailPipe(ctx.Context(), VerifyEmail)
+
+	settingsRoute := config.EnvConfig.FRONTEND_APP_URL + "/settings?email-verified=set"
+
+	return ctx.Redirect(settingsRoute)
 }

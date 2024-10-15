@@ -29,11 +29,11 @@ type Config struct {
 	FRONTEND_PUBLIC_URL          string
 	MAILTRAP_USERNAME            string
 	MAILTRAP_PASSWORD						 string
-	MAILDATASENDERNAME           string
-	MAILDATASENDER               string
-	MAILDATARECIPIENTNAME        string
-	MAILDATARECIPIENT            string
-	MAILDATASUBJECT              string
+	// MAILDATASENDERNAME           string
+	// MAILDATASENDER               string
+	// MAILDATARECIPIENTNAME        string
+	// MAILDATARECIPIENT            string
+	// MAILDATASUBJECT              string
 }
 
 var EnvConfig = Config{}

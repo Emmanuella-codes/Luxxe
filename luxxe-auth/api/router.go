@@ -1,8 +1,8 @@
 package api
 
 import (
-	shared "github.com/Emmanuella-codes/Luxxe/luxxe-shared"
 	"github.com/Emmanuella-codes/Luxxe/luxxe-auth/services"
+	shared "github.com/Emmanuella-codes/Luxxe/luxxe-shared"
 	"github.com/Emmanuella-codes/Luxxe/typings"
 )
 
@@ -32,5 +32,10 @@ var AuthRoutes = []shared.RouterSchema{
 		Path:        "/reset-password-id",
 		Middlewares: []typings.FiberMiddleware{services.BaseAuthToken, services.IsAnyUserMiddleware},
 		Handler:     resetUserPasswordByID,
+	},
+	{
+		RouteMethod: shared.RouteMethodGet,
+		Path:        "/verify-email",
+		Handler:     verifyEmail,
 	},
 }
