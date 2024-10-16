@@ -2,7 +2,7 @@ package mail
 
 import (
 	"fmt"
-  "net/smtp"
+	"net/smtp"
 
 	config "github.com/Emmanuella-codes/Luxxe/luxxe-config"
 )
@@ -23,7 +23,7 @@ func SendMailByGmail(mailInfo *MailInfoStruct) {
   // Send the email.
 	err := smtp.SendMail("smtp.gmail.com:587", auth, mailInfo.From, to, msg)
 	if err != nil {
-		fmt.Println("error sending email: %v", err)
+		fmt.Printf("error sending email: %v", err)
     panic(err)
 	}
 
