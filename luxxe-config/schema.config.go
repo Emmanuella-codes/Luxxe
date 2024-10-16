@@ -27,10 +27,10 @@ type Config struct {
 	BACKEND_ROUTE                string
 	FRONTEND_APP_URL             string
 	FRONTEND_PUBLIC_URL          string
-	MAILTRAP_USERNAME            string
-	MAILTRAP_PASSWORD						 string
+	GMAIL_USERNAME            string
+	GMAIL_PASSWORD						 string
+	MAILDATASENDER               string
 	// MAILDATASENDERNAME           string
-	// MAILDATASENDER               string
 	// MAILDATARECIPIENTNAME        string
 	// MAILDATARECIPIENT            string
 	// MAILDATASUBJECT              string

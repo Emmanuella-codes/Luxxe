@@ -2,39 +2,30 @@ package mail
 
 import (
 	"fmt"
-	"log"
+  "net/smtp"
 
 	config "github.com/Emmanuella-codes/Luxxe/luxxe-config"
-	gomail "gopkg.in/mail.v2"
 )
 
-func SendMailByMailTrap(mailInfo *MailInfoStruct) {
-  // Log Mailtrap credentials before proceeding
-  fmt.Printf("Using Mailtrap credentials: %s, %s\n", config.EnvConfig.MAILTRAP_USERNAME, config.EnvConfig.MAILTRAP_PASSWORD)
+func SendMailByGmail(mailInfo *MailInfoStruct) {
+  // set up auth info
+  auth := smtp.PlainAuth("", config.EnvConfig.GMAIL_USERNAME, config.EnvConfig.GMAIL_PASSWORD, "smtp.gmail.com")
 
-  if config.EnvConfig.MAILTRAP_USERNAME == "" || config.EnvConfig.MAILTRAP_PASSWORD == "" {
-      log.Fatal("Mailtrap username or password is not set in environment variables.")
-  }
+  // Create the email message.
+	to := []string{mailInfo.To}
+	msg := []byte(
+		"From: " + mailInfo.From + "\r\n" +
+			"To: " + mailInfo.To + "\r\n" +
+			"Subject: " + mailInfo.Subject + "\r\n" +
+			"\r\n" + mailInfo.Text + "\r\n",
+	)
 
-  // create a new message
-  message := gomail.NewMessage()
+  // Send the email.
+	err := smtp.SendMail("smtp.gmail.com:587", auth, mailInfo.From, to, msg)
+	if err != nil {
+		fmt.Println("error sending email: %v", err)
+    panic(err)
+	}
 
-  // Set email headers using data from MailInfoStruct
-	message.SetHeader("From", mailInfo.From)
-	message.SetHeader("To", mailInfo.To)
-	message.SetHeader("Subject", mailInfo.Subject)
-
-  // set email body (text content)
-  message.SetBody("text/plain", mailInfo.Text)
-
-  // setup the Mailtrap SMTP dialer
-  dialer := gomail.NewDialer("live.smtp.mailtrap.io", 587, config.EnvConfig.MAILTRAP_USERNAME, config.EnvConfig.MAILTRAP_PASSWORD)
-
-  // send the email
-  if err := dialer.DialAndSend(message); err != nil {
-    fmt.Println("Error while sending the email:", err)
-		panic(err)
-  } else {
-    fmt.Println("Email sent successfully!")
-  }
+	fmt.Println("Email sent successfully!")
 }

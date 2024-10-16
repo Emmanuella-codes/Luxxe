@@ -5,6 +5,6 @@ type MailInfoStruct struct {
 	To           string            `json:"to" bson:"to"`
 	Subject      string            `json:"subject" bson:"subject"`
 	Text         string            `json:"text" bson:"text"`
-	TemplateID   string            `json:"templateID" bson:"templateID"`
+	// TemplateID   string            `json:"templateID" bson:"templateID"`
 	TemplateData map[string]string `json:"templateData" bson:"templateData"`
 }

@@ -17,9 +17,10 @@ func SendOtpMail(email, otp, timeLeft string) {
 	SendMail(
 		&MailInfoStruct{
 			To:      email,
+			From:    config.EnvConfig.MAILDATASENDER,
 			Subject: "Luxxe Account OTP",
 			Text: 	 "Please proceed with secure otp " + otp + ". You have " + timeLeft,
-			TemplateID: "e3116348-ffd7-4099-8ee0-3fec7b39ec36",
+			// TemplateID: "e3116348-ffd7-4099-8ee0-3fec7b39ec36",
 			TemplateData: map[string]string{
 				"otp": 					otp,
 				"appURL": 			appURL,
@@ -27,6 +28,5 @@ func SendOtpMail(email, otp, timeLeft string) {
 			},
 		},
 		mailContext,
-		MailTrapMailClient,
 	)
 }

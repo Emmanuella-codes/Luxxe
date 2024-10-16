@@ -25,7 +25,7 @@ func SendVerifyMailLink(email, userID, firstName string) {
 			To:      email,
 			Subject: "Luxxe Account Email Verification",
 			Text: 	 "Click on this link to verify your email:  " + inviteLink,
-			TemplateID: "a3d86160-f34f-43e0-a9b4-246aa1f02b10",
+			// TemplateID: "a3d86160-f34f-43e0-a9b4-246aa1f02b10",
 			TemplateData: map[string]string{
 				"firstName":    firstName,
 				"inviteLink":   inviteLink,
@@ -34,6 +34,5 @@ func SendVerifyMailLink(email, userID, firstName string) {
 			},
 		},
 		mailContext,
-		MailTrapMailClient,
 	)
 }
