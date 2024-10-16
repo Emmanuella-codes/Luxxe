@@ -24,6 +24,16 @@ type Config struct {
 	PORT                         string
 	ENV                          ServerEnvironment
 	API_DOCUMENTATION_URL        string
+	BACKEND_ROUTE                string
+	FRONTEND_APP_URL             string
+	FRONTEND_PUBLIC_URL          string
+	GMAIL_USERNAME            string
+	GMAIL_PASSWORD						 string
+	MAILDATASENDER               string
+	// MAILDATASENDERNAME           string
+	// MAILDATARECIPIENTNAME        string
+	// MAILDATARECIPIENT            string
+	// MAILDATASUBJECT              string
 }
 
 var EnvConfig = Config{}
