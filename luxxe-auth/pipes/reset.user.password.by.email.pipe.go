@@ -30,7 +30,7 @@ func ResetUserPasswordByEmailPipe(ctx context.Context, dto *dtos.ResetUserPasswo
 		}
 	}
 
-	hashedPassword := services.GenerateStringHash(password)
+	hashedPassword := services.GeneratePasswordHash(password)
 	repo_user.UserRepo.UpdatePassword(ctx, userExists.ID.Hex(), hashedPassword)
 
 	return &shared.PipeRes[entities.User]{

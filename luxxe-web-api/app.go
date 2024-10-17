@@ -5,15 +5,17 @@ import (
 	"log"
 	"time"
 
-	auth_api "github.com/Emmanuella-codes/Luxxe/luxxe-auth/api"
-	config "github.com/Emmanuella-codes/Luxxe/luxxe-config"
-	entities "github.com/Emmanuella-codes/Luxxe/luxxe-entities"
-	shared_api "github.com/Emmanuella-codes/Luxxe/luxxe-shared/api"
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"go.mongodb.org/mongo-driver/bson"
+
+	auth_api "github.com/Emmanuella-codes/Luxxe/luxxe-auth/api"
+	config "github.com/Emmanuella-codes/Luxxe/luxxe-config"
+	entities "github.com/Emmanuella-codes/Luxxe/luxxe-entities"
+	user_api "github.com/Emmanuella-codes/Luxxe/luxxe-profile/api"
+	shared_api "github.com/Emmanuella-codes/Luxxe/luxxe-shared/api"
 )
 
 func GenerateApp() *fiber.App {
@@ -82,8 +84,8 @@ func GenerateApp() *fiber.App {
 	authGroup := app.Group("/auth")
 	shared_api.BaseRouter(authGroup, auth_api.AuthRoutes)
 
-	// userGroup := app.Group("/user")
-	// shared_api.BaseRouter(userGroup, user_api.UserRoutes)
+	userGroup := app.Group("/user")
+	shared_api.BaseRouter(userGroup, user_api.UserRoutes)
 
 	
 
