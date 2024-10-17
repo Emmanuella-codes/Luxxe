@@ -27,6 +27,7 @@ func IssueToken(ats *AccountTokenStruct) (string, error) {
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub":         ats.UserID,
 		"userID":      ats.UserID,
+		"accountRole": ats.AccountRole,
 		"iss":         "luxxe",
 		"email":       ats.Email,
 		"aud":         ats.AccountType,                                                                    // Audience (user role)                                                                        // Issuer

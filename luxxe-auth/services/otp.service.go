@@ -33,12 +33,11 @@ func IssueOtp(ctx context.Context, ios *IssueOTPStruct) *IssueOTPRes {
 	}
 
 	otpString := strconv.Itoa(otp)
-	otpStringHash := GenerateStringHash(otpString)
 	TempStore.Set(
 		ctx,
 		&TempStore.SetStruct{
 			Key: 						email,
-			Value: 					otpStringHash,
+			Value: 					otpString,
 			ExpirationTime: expirationTime,
 		},
 	)
@@ -58,12 +57,12 @@ type VerifyOtpStruct struct {
 // TODO: @security Hash the OTPs
 func VerifyOtp(ctx context.Context, vos *VerifyOtpStruct) bool {
 	email, otp, keepAlive := vos.Email, vos.Otp, vos.KeepAlive
-	emailOtpHash, err := TempStore.Get(ctx, email)
+	emailOtp, err := TempStore.Get(ctx, email)
 	if err != nil {
 		return false
 	}
 
-	if !CompareStringHash(emailOtpHash, otp) {
+	if emailOtp != otp {
 		return false
 	}
 	if !keepAlive {
