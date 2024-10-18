@@ -56,10 +56,10 @@ func VerifyToken(tokenString string) (*AccountTokenStruct, error) {
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		var currentAccountRole entities.AccountRole
 		accountRoleClaims := claims["accountRole"].(string)
-		if accountRoleClaims == string(entities.AccountRoleCreator) {
-			currentAccountRole = entities.AccountRoleCreator
+		if accountRoleClaims == string(entities.AccountRoleUser) {
+			currentAccountRole = entities.AccountRoleUser
 		} else {
-			currentAccountRole = entities.AccountRoleSub
+			currentAccountRole = entities.AccountRoleAdmin
 		}
 
 		accountTokenStruct := &AccountTokenStruct{

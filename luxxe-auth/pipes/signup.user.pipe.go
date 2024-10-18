@@ -6,6 +6,7 @@ import (
 	"github.com/Emmanuella-codes/Luxxe/luxxe-auth/dtos"
 	"github.com/Emmanuella-codes/Luxxe/luxxe-auth/messages"
 	"github.com/Emmanuella-codes/Luxxe/luxxe-auth/services"
+	config "github.com/Emmanuella-codes/Luxxe/luxxe-config"
 	entities "github.com/Emmanuella-codes/Luxxe/luxxe-entities"
 	repo_user "github.com/Emmanuella-codes/Luxxe/luxxe-repositories/user"
 	shared "github.com/Emmanuella-codes/Luxxe/luxxe-shared"
@@ -13,7 +14,7 @@ import (
 )
 
 func SignUpUserPipe(ctx context.Context, dto *dtos.SignUpUserDTO) *shared.PipeRes[entities.User] {
-	firstname, lastname, email, password := dto.Firstname, dto.Lastname, dto.Email, dto.Password
+	firstname, lastname, email, password, adminKey := dto.Firstname, dto.Lastname, dto.Email, dto.Password, dto.AdminKey
 
 	userExists, _ := repo_user.UserRepo.QueryByEmail(ctx, email)
 	if userExists != nil {
@@ -25,19 +26,26 @@ func SignUpUserPipe(ctx context.Context, dto *dtos.SignUpUserDTO) *shared.PipeRe
 
 	hashedPassword := services.GeneratePasswordHash(password)
 
+	var accountRole entities.AccountRole
+	if adminKey != "" && adminKey == config.EnvConfig.ADMIN_KEY {
+		accountRole = entities.AccountRoleAdmin
+	} else {
+		accountRole = entities.AccountRoleUser
+	}
+
 	user, _ := repo_user.UserRepo.Create(
 		ctx,
 		&entities.User{
-			Firstname: firstname,
-			Lastname: lastname,
-			Email:    email,
-			Password: hashedPassword,
-			AccountRole: entities.AccountRoleCreator,
+			Firstname: 	 firstname,
+			Lastname: 	 lastname,
+			Email:    	 email,
+			Password:    hashedPassword,
+			AccountRole: accountRole,
 		})
 
 	token, _ := services.IssueToken(&services.AccountTokenStruct{
 		UserID:      user.ID.Hex(),
-		AccountRole: entities.AccountRoleCreator,
+		AccountRole: accountRole,
 		Email:       user.Email,
 		AccountType: typings.AccountTypeUser,
 	})

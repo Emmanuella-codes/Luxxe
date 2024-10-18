@@ -2,8 +2,8 @@ package entities
 
 type AccountRole string
 
-const AccountRoleCreator AccountRole = "account_role_creator"
-const AccountRoleSub AccountRole = "account_role_sub"
+const AccountRoleUser AccountRole = "account_role_user"
+const AccountRoleAdmin AccountRole = "account_role_admin"
 
 type AccountCreatorModel string
 

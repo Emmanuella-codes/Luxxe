@@ -14,8 +14,8 @@ func IsAnyUser(token *AccountTokenStruct) typings.FiberMiddleware {
 	return accessControlService(&AccessControlStruct{
 		AccountTypes: []typings.AccountType{typings.AccountTypeUser},
 		AccountRoles: []entities.AccountRole{
-			entities.AccountRoleCreator,
-			entities.AccountRoleSub,
+			entities.AccountRoleUser,
+			entities.AccountRoleAdmin,
 		},
 		Token: token,
 	})
