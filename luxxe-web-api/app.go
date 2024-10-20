@@ -14,6 +14,7 @@ import (
 	auth_api "github.com/Emmanuella-codes/Luxxe/luxxe-auth/api"
 	config "github.com/Emmanuella-codes/Luxxe/luxxe-config"
 	entities "github.com/Emmanuella-codes/Luxxe/luxxe-entities"
+	product_api "github.com/Emmanuella-codes/Luxxe/luxxe-product/api"
 	user_api "github.com/Emmanuella-codes/Luxxe/luxxe-profile/api"
 	shared_api "github.com/Emmanuella-codes/Luxxe/luxxe-shared/api"
 )
@@ -73,7 +74,7 @@ func GenerateApp() *fiber.App {
 
 	// create health check route
 	app.Get("/health-check", func(ctx *fiber.Ctx) error {
-		return ctx.JSON(map[string]string{"check": "LoveWall server is live!. 📦 🧧 💪🏾"})
+		return ctx.JSON(map[string]string{"check": "Luxxe server is live!. 📦 🧧 💪🏾"})
 	})
 
 	app.Get("/docs", func(ctx *fiber.Ctx) error {
@@ -87,7 +88,8 @@ func GenerateApp() *fiber.App {
 	userGroup := app.Group("/user")
 	shared_api.BaseRouter(userGroup, user_api.UserRoutes)
 
-	
+	productGroup := app.Group("/product")
+	shared_api.BaseRouter(productGroup, product_api.ProductRoutes)
 
 	return app
 }

@@ -7,4 +7,5 @@ const (
 	ModelNamesAuditLog   ModelNames = "auditLog"
 	ModelNamesEmailStats ModelNames = "emailstats"
 	ModelNamesTempStore  ModelNames = "tempstore"
+	ModelNamesProduct    ModelNames = "product"
 )
