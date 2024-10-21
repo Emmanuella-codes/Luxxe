@@ -11,14 +11,17 @@ import (
 )
 
 func CreateProductPipe(ctx context.Context, dto *dtos.CreateProductDTO) *shared.PipeRes[entities.Product] {
-	name, desciption, category, price, quantity := dto.Name, dto.Description, dto.Category, dto.Price, dto.Quantity
+	name, desciption, category, price, quantity, productImage, productInfo := dto.Name, 
+		dto.Description, dto.Category, dto.Price, dto.Quantity, dto.ProductImage, dto.ProductInfo
 
 	product := &entities.Product{
-		Name: name,
-		Description: desciption,
-		Category: category,
-		Price: price,
-		Quantity: quantity,
+		Name: 				name,
+		Description: 	desciption,
+		Category: 		category,
+		Price: 				price,
+		Quantity: 		quantity,
+		ProductImage: productImage,
+		ProductInfo: 	productInfo,
 	}
 	
 	newProduct, err := product_repo.ProductRepo.Create(ctx, product)

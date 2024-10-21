@@ -16,9 +16,12 @@ type ProductRepository interface {
 		name string, 
 		description string,
 	  price float64,
-		category string, 
+		category entities.ProductCategories,
+		productImage string,
+		productInfo string,
 		quantity int) (*entities.Product, error)
-	QueryByID(ctx context.Context, productID string) (*entities.Product, error) 
+	QueryByID(ctx context.Context, productID string) (*entities.Product, error)
+	QueryProductsByCategory(ctx context.Context, category entities.ProductCategories, page int) (*[]entities.Product, int64, error)
 	DeleteProduct(ctx context.Context, productID string)
 }
 

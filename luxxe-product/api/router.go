@@ -31,4 +31,10 @@ var ProductRoutes = []shared.RouterSchema{
 		Middlewares: []typings.FiberMiddleware{services.BaseAuthToken, services.IsAnyUserMiddleware},
 		Handler:     getProducts,
 	},
+	{
+		RouteMethod: shared.RouteMethodGet,
+		Path:        "/",
+		Middlewares: []typings.FiberMiddleware{services.BaseAuthToken, services.IsAnyUserMiddleware},
+		Handler:     getProductsByCategory,
+	},
 }
