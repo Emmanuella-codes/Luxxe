@@ -1,10 +1,14 @@
 package dtos
 
+import entities "github.com/Emmanuella-codes/Luxxe/luxxe-entities"
+
 type UpdateProductDTO struct {
-	ProductID   string  `json:"productID" validate:"required"`
-	Name        string  `json:"name" validate:"required"`
-	Description string  `json:"description" validate:"required,min=10"`
-	Category    string  `json:"category" validate:"required"`
-	Price       float64 `json:"price" validate:"required,gt=0"`
-	Quantity    int     `json:"quantity" validate:"required"`
+	ProductID   	string     									`json:"productID" validate:"required"`
+	Name        	string     									`json:"name"`
+	Description 	string     									`json:"description" validate:"min=10"`
+	Category    	entities.ProductCategories  `json:"category" validate:"oneof=hair skincare fragrance wellness makeup accessories personalcare bath&body jewelry homespa"`
+	Price       	float64    									`json:"price" validate:"gt=0"`
+	ProductImage 	string											`json:"productImage"`
+	ProductInfo 	string											`json:"productInfo"`
+	Quantity    	int        									`json:"quantity"`
 }

@@ -194,6 +194,64 @@ func getProducts(ctx *fiber.Ctx) error {
 	)
 }
 
+func getProductsByCategory(ctx *fiber.Ctx) error {
+	GetProductsByCategory := new(dtos.GetProductByCategoryDTO)
+
+	if err := ctx.QueryParser(GetProductsByCategory); err != nil {
+		return err
+	}
+
+	AccountToken := ctx.Locals("token").(*services.AccountTokenStruct)
+	userID := AccountToken.UserID
+
+	var statusCode int
+	_, err := repo_user.UserRepo.QueryByID(ctx.Context(), userID)
+	if err != nil {
+		statusCode = fiber.StatusBadRequest
+		return ctx.Status(statusCode).JSON(
+			fiber.Map{
+				"statusCode": statusCode,
+				"message":    auth_messages.NOT_FOUND_USER,
+			},
+		)
+	}
+
+	success, err := shared_api.ValidateAPIData(GetProductsByCategory)
+	if !success {
+		return ctx.Status(fiber.StatusBadRequest).JSON(
+			fiber.Map{
+				"statusCode": fiber.StatusBadRequest,
+				"message":    "Invalid request data",
+				"payload":    map[string]string{},
+				"error":      err.Error(),
+			},
+		)
+	}
+
+	res := pipes.GetProductsByCategoryPipe(ctx.Context(), GetProductsByCategory)
+	if res.Success {
+		statusCode = fiber.StatusOK
+	} else {
+		statusCode = fiber.StatusBadRequest
+	}
+
+	var payload interface{}
+	if res.Data == nil {
+		payload = []interface{}{} // Return an empty array if data is nil or empty string
+	} else {
+		payload = res.Data
+	}
+
+	return ctx.Status(statusCode).JSON(
+		fiber.Map{
+			"statusCode": statusCode,
+			"message":    res.Message,
+			"payload":    payload,
+			"token":      res.Token,
+		},
+	)
+}
+
 func deleteProduct(ctx *fiber.Ctx) error {
 	DeleteProduct := new(dtos.DeleteProductDTO)
 

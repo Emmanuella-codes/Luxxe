@@ -11,10 +11,10 @@ import (
 )
 
 func UpdateProductPipe(ctx context.Context, dto *dtos.UpdateProductDTO) *shared.PipeRes[entities.Product] {
-	productIDStr, name, description, category, price, quantity := dto.ProductID,
-		dto.Name, dto.Description, dto.Category, dto.Price, dto.Quantity
+	productIDStr, name, description, category, price, productImage, productInfo, quantity := dto.ProductID,
+		dto.Name, dto.Description, dto.Category, dto.Price, dto.ProductImage, dto.ProductInfo, dto.Quantity
 
-	product, err := product_repo.ProductRepo.UpdateProductByID(ctx, productIDStr, name, description, price, category, quantity)
+	product, err := product_repo.ProductRepo.UpdateProductByID(ctx, productIDStr, name, description, price, category, productImage, productInfo, quantity)
 
 	if err != nil {
 		return &shared.PipeRes[entities.Product]{

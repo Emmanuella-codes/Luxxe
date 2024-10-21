@@ -71,16 +71,20 @@ func (r *mgRepository) UpdateProductByID(ctx context.Context,
 	name string, 
 	description string,
 	price float64,
-	category string, 
+	category entities.ProductCategories,
+	productImage string,
+	productInfo string,
 	quantity int,
 ) (*entities.Product, error) {
 	update := bson.M{
-		"name": 			 name,
-		"description": description,
-		"price": 			 price,
-		"category": 	 category,
-		"quantity": 	 quantity,
-		"updatedAt": 	 time.Now(),
+		"name": 			 	name,
+		"description": 	description,
+		"price": 			 	price,
+		"category": 	 	category,
+		"quantity": 	 	quantity,
+		"productImage": productImage,
+		"productInfo": 	productInfo,
+		"updatedAt": 	 	time.Now(),
 	}
 
 	return entities.ProductModel.FindByIdAndUpdate(
@@ -95,6 +99,30 @@ func (r *mgRepository) UpdateProductByID(ctx context.Context,
 func (r *mgRepository) QueryByID(ctx context.Context, ID string) (*entities.Product, error) {
 	return entities.ProductModel.FindById(ctx, ID)
 }
+
+func (r *mgRepository) QueryProductsByCategory(ctx context.Context, category entities.ProductCategories, page int) (*[]entities.Product, int64, error) {
+	skip, limit := misc.Pagination(misc.PaginationStruct{Page: page})
+
+	filter := &bson.M{"category": category}
+
+	productCount, err := entities.ProductCollection.CountDocuments(ctx, filter)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	opts := options.Find().SetSort(bson.D{{Key: "createdAt", Value: -1}}).SetSkip(int64(skip)).SetLimit(int64(limit))
+	cursor, err := entities.ProductCollection.Find(ctx, filter, opts)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer cursor.Close(ctx)
+
+	var products []entities.Product = []entities.Product{}
+	if err = cursor.All(ctx, &products); err != nil {
+		return nil, 0, err
+	}
+	return &products, productCount, nil
+} 
 
 func (r *mgRepository) DeleteProduct(ctx context.Context, productID string) {
 	entities.ProductModel.FindByIdAndDelete(ctx, productID)
