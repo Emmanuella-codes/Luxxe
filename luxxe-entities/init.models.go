@@ -5,4 +5,5 @@ func InitModels() {
 	initAuditLog()
 	initEmailStats()
 	initTempStore()
+	initProduct()
 }

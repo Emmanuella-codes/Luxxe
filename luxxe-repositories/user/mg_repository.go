@@ -21,11 +21,12 @@ func newMgRepository(log *log.Logger) UserRespository {
 }
 
 func (r *mgRepository) Create(ctx context.Context, user *entities.User) (*entities.User, error) {
-	firstname, lastname, email, hashedPassword :=
+	firstname, lastname, email, hashedPassword, accountRole :=
 		user.Firstname,
 		user.Lastname,
 		user.Email,
-		user.Password
+		user.Password,
+		user.AccountRole
 
 	return entities.UserModel.Create(
 		ctx,
@@ -34,6 +35,7 @@ func (r *mgRepository) Create(ctx context.Context, user *entities.User) (*entiti
 			"lastname":    lastname,
 			"email":       strings.ToLower(email),
 			"password":    hashedPassword,
+			"accountRole": accountRole,
 			"createdAt":   time.Now(),
 		},
 	)
