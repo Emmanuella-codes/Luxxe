@@ -147,23 +147,13 @@ func getProducts(ctx *fiber.Ctx) error {
 	userID := AccountToken.UserID
 
 	var statusCode int
-	user, err := repo_user.UserRepo.QueryByID(ctx.Context(), userID)
+	_, err := repo_user.UserRepo.QueryByID(ctx.Context(), userID)
 	if err != nil {
 		statusCode = fiber.StatusBadRequest
 		return ctx.Status(statusCode).JSON(
 			fiber.Map{
 				"statusCode": statusCode,
 				"message":    auth_messages.NOT_FOUND_USER,
-			},
-		)
-	}
-
-	if user.AccountRole == "" {
-		statusCode = fiber.StatusBadRequest
-		return ctx.Status(statusCode).JSON(
-			fiber.Map{
-				"statusCode": statusCode,
-				"message":    product_messages.NOT_AUTHORIZED,
 			},
 		)
 	}
@@ -215,13 +205,23 @@ func deleteProduct(ctx *fiber.Ctx) error {
 	userID := AccountToken.UserID
 
 	var statusCode int
-	_, err := repo_user.UserRepo.QueryByID(ctx.Context(), userID)
+	user, err := repo_user.UserRepo.QueryByID(ctx.Context(), userID)
 	if err != nil {
 		statusCode = fiber.StatusBadRequest
 		return ctx.Status(statusCode).JSON(
 			fiber.Map{
 				"statusCode": statusCode,
 				"message":    auth_messages.NOT_FOUND_USER,
+			},
+		)
+	}
+
+	if user.AccountRole != entities.AccountRoleAdmin {
+		statusCode = fiber.StatusBadRequest
+		return ctx.Status(statusCode).JSON(
+			fiber.Map{
+				"statusCode": statusCode,
+				"message":    product_messages.NOT_AUTHORIZED,
 			},
 		)
 	}
