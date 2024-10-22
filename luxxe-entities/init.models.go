@@ -6,4 +6,5 @@ func InitModels() {
 	initEmailStats()
 	initTempStore()
 	initProduct()
+	initCartItem()
 }
