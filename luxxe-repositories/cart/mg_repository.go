@@ -132,9 +132,8 @@ func (r *mgRepository) GetCart(ctx context.Context, userID string) (*entities.Ca
 	return &cart, nil
 }
 
-func (r *mgRepository) ClearCart(ctx context.Context, userID string) error {
+func (r *mgRepository) ClearCart(ctx context.Context, userID string) {
 	userIDObj, _ := primitive.ObjectIDFromHex(userID)
 	
-	_, err := entities.CartItemCollection.DeleteOne(ctx, bson.M{"userID": userIDObj})
-	return err
+	entities.CartItemCollection.DeleteOne(ctx, bson.M{"userID": userIDObj})
 }

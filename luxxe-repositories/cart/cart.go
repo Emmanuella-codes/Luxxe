@@ -13,7 +13,7 @@ type CartRepository interface {
 	UpdateCartItem(ctx context.Context, userID string, productID string, quantity int) (*entities.Cart, error)
 	RemoveFromCart(ctx context.Context, userID string, productID string) (*entities.Cart, error)
 	GetCart(ctx context.Context, userID string) (*entities.Cart, error)
-	ClearCart(ctx context.Context, userID string) error
+	ClearCart(ctx context.Context, userID string)
 }
 
 var CartRepo CartRepository
