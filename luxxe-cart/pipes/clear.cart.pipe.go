@@ -5,30 +5,37 @@ import (
 
 	"github.com/Emmanuella-codes/Luxxe/luxxe-cart/dtos"
 	"github.com/Emmanuella-codes/Luxxe/luxxe-cart/messages"
-	entities "github.com/Emmanuella-codes/Luxxe/luxxe-entities"
 	user_messages "github.com/Emmanuella-codes/Luxxe/luxxe-profile/messages"
 	cart_repo "github.com/Emmanuella-codes/Luxxe/luxxe-repositories/cart"
 	repo_user "github.com/Emmanuella-codes/Luxxe/luxxe-repositories/user"
 	shared "github.com/Emmanuella-codes/Luxxe/luxxe-shared"
 )
 
-func ClearCartPipe(ctx context.Context, dto *dtos.ClearCartDTO) *shared.PipeRes[entities.Cart] {
+type EmptyStruct struct{}
+
+func ClearCartPipe(ctx context.Context, dto *dtos.ClearCartDTO) *shared.PipeRes[EmptyStruct] {
 	userIDStr := dto.UserID
 
-	_, error := repo_user.UserRepo.QueryByID(ctx, userIDStr)
-
-	cart_repo.CartRepo.ClearCart(ctx, userIDStr)
-
-	if error != nil {
-		return &shared.PipeRes[entities.Cart]{
+	_, err := repo_user.UserRepo.QueryByID(ctx, userIDStr)
+	if err != nil {
+		return &shared.PipeRes[EmptyStruct]{
 			Success: false,
-			Message: messages.FAIL_ADD_TO_CART,
+			Message: user_messages.NOT_FOUND_USER,
 		}
 	}
 
-	return &shared.PipeRes[entities.Cart]{
+	err = cart_repo.CartRepo.ClearCart(ctx, userIDStr)
+	if err != nil {
+		return &shared.PipeRes[EmptyStruct]{
+			Success: false,
+			Message: messages.FAIL_CLEAR_CART,
+			Data:    &EmptyStruct{},
+		}
+	}
+
+	return &shared.PipeRes[EmptyStruct]{
 		Success: true,
-		Message: messages.SUCCESS_ADD_TO_CART,
-		Data:    cart,
+		Message: messages.SUCCESS_CLEAR_CART,
+		Data:    &EmptyStruct{},
 	}
 }

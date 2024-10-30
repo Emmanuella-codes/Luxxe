@@ -12,6 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 
 	auth_api "github.com/Emmanuella-codes/Luxxe/luxxe-auth/api"
+	cart_api "github.com/Emmanuella-codes/Luxxe/luxxe-cart/api"
 	config "github.com/Emmanuella-codes/Luxxe/luxxe-config"
 	entities "github.com/Emmanuella-codes/Luxxe/luxxe-entities"
 	product_api "github.com/Emmanuella-codes/Luxxe/luxxe-product/api"
@@ -90,6 +91,9 @@ func GenerateApp() *fiber.App {
 
 	productGroup := app.Group("/product")
 	shared_api.BaseRouter(productGroup, product_api.ProductRoutes)
+
+	cartGroup := app.Group("/cart")
+	shared_api.BaseRouter(cartGroup, cart_api.CartRoutes)
 
 	return app
 }

@@ -9,22 +9,22 @@ import (
 )
 
 type CartItem struct {
-	ProductID primitive.ObjectID `json:"productId" bson:"productId"`
+	ProductID primitive.ObjectID `json:"productID" bson:"productID"`
 	Quantity  int                `json:"quantity" bson:"quantity"`
 }
 
 type Cart struct {
 	ID        primitive.ObjectID `json:"_id" bson:"_id"`
-	UserID    primitive.ObjectID `json:"userId" bson:"userId"`
+	UserID    primitive.ObjectID `json:"userID" bson:"userID"`
 	Items     []CartItem         `json:"items" bson:"items"`
 	CreatedAt time.Time          `json:"createdAt" bson:"createdAt"`
 	UpdatedAt time.Time          `json:"updatedAt" bson:"updatedAt"`
 }
 
-var CartItemModel *Model[AuditLog]
+var CartItemModel *Model[Cart]
 var CartItemCollection *mongo.Collection
 
 func initCartItem() {
-	AuditLogCollection = config.GetCollection(string(ModelNamesCart))
-	AuditLogModel = InitModel[AuditLog](ModelNamesCart, CartItemCollection)
+	CartItemCollection = config.GetCollection(string(ModelNamesCart))
+	CartItemModel = InitModel[Cart](ModelNamesCart, CartItemCollection)
 }

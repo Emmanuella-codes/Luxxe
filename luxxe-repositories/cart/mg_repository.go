@@ -2,6 +2,7 @@ package cart
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/go-kit/log"
@@ -11,6 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	entities "github.com/Emmanuella-codes/Luxxe/luxxe-entities"
+	"github.com/Emmanuella-codes/Luxxe/luxxe-shared/misc"
 )
 
 type mgRepository struct {
@@ -24,35 +26,51 @@ func newMgRepository(log *log.Logger) CartRepository {
 }
 
 func (r *mgRepository) AddToCart(ctx context.Context, userID string, productID string, quantity int) (*entities.Cart, error) {
-	userIDObj, _ := primitive.ObjectIDFromHex(userID)
-	productIDObj, _ := primitive.ObjectIDFromHex(productID)
+	userIDObj, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid user ID: %w", err)
+	}
+	productIDObj, err := primitive.ObjectIDFromHex(productID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid product ID: %w", err)
+	}
 
 	filter := bson.M{
 		"userID": userIDObj,
+		"items.productID": productIDObj,
 	}
 	update := bson.M{
-		"$setOnInsert": bson.M{
-			"createdAt": time.Now(),
-		},
-		"$push": bson.M{
-			"items": bson.M{
-				"productID": productIDObj,
-				"quantity": quantity,
-			},
-		},
+		"$set": bson.M{"updatedAt": time.Now()},
+		"$inc": bson.M{"items.$.quantity": quantity},
 	}
 
-	opts := options.FindOneAndUpdate()
-	upsert := true                     	// Upsert should be a pointer to a bool
-	opts.Upsert = &upsert              	// Pass the pointer to Upsert
-
-	after := options.After             // ReturnDocument should be a pointer to ReturnDocument
-	opts.ReturnDocument = &after			// Pass the pointer to ReturnDocument
-
+	// Attempt to update an existing item
+	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
 	var updatedCart entities.Cart
-	err := entities.CartItemCollection.FindOneAndUpdate(ctx, filter, update, opts).Decode(&updatedCart)
+	err = entities.CartItemCollection.FindOneAndUpdate(ctx, filter, update, opts).Decode(&updatedCart)
+	if err == nil {
+		// Item exists and quantity was incremented successfully, return updated cart
+		return &updatedCart, nil
+	}
+
+	// Step 2: If no item found, add the product as a new item
+	if err != mongo.ErrNoDocuments {
+		return nil, fmt.Errorf("error updating cart item: %w", err)
+	}
+		// Update the filter to find the user's cart (no product filter)
+	filter = bson.M{"userID": userIDObj}
+	update = bson.M{
+		"$setOnInsert": bson.M{"createdAt": time.Now()},
+		"$push": bson.M{"items": bson.M{ // Add new item to items array
+			"productID": productIDObj,
+			"quantity":  quantity,
+		}},
+	}
+
+	opts.SetUpsert(true)
+	err = entities.CartItemCollection.FindOneAndUpdate(ctx, filter, update, opts).Decode(&updatedCart)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to add new item to cart: %w", err)
 	}
 
 	return &updatedCart, nil
@@ -64,18 +82,17 @@ func (r *mgRepository) UpdateCartItem(ctx context.Context, userID string, produc
 
 	filter := bson.M{"userID": userIDObj, "items.productID": productIDObj}
 	update := bson.M{
-		"$set": bson.M{
-			"items.$.quantity": quantity,
-			"updatedAt": 				time.Now(),
-		},
+		"$inc": bson.M{"items.$.quantity": quantity,},
+		"$set": bson.M{"updatedAt": time.Now()},
 	}
-	opts := options.FindOneAndUpdate()
-	after := options.After             // ReturnDocument should be a pointer to ReturnDocument
-	opts.ReturnDocument = &after
-
+	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+	
 	var updatedCart entities.Cart
 	err := entities.CartItemCollection.FindOneAndUpdate(ctx, filter, update, opts).Decode(&updatedCart)
 	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, fmt.Errorf("item not found in the cart")
+		}
 		return nil, err
 	}
 
@@ -107,33 +124,42 @@ func (r *mgRepository) RemoveFromCart(ctx context.Context, userID string, produc
 	return &updatedCart, nil
 }
 
-func (r *mgRepository) GetCart(ctx context.Context, userID string) (*entities.Cart, error) {
+func (r *mgRepository) GetCart(ctx context.Context, userID string, page int) (*[]entities.Cart, int64, error) {
 	userIDObj, _ := primitive.ObjectIDFromHex(userID)
-	
-	var cart entities.Cart
-	err := entities.CartItemCollection.FindOne(ctx, bson.M{"userID": userIDObj}).Decode(&cart)
+
+	skip, limit := misc.Pagination(misc.PaginationStruct{Page: page})
+
+	filter := &bson.M{"userID": userIDObj}
+
+	cartCount, err := entities.CartItemCollection.CountDocuments(ctx, filter)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			newCart := &entities.Cart{
-				ID: 			 primitive.NewObjectID(),
-				UserID: 	 userIDObj,
-				Items: 		 []entities.CartItem{},
-				CreatedAt: time.Now(),
-			}
-			_, err := entities.CartItemCollection.InsertOne(ctx, newCart)
-			if err != nil {
-				return nil, err
-			}
-			return newCart, nil
-		}
-		return nil, err
+		return nil, 0, err
 	}
 
-	return &cart, nil
+	opts := options.Find().SetSort(bson.D{{Key: "createdAt", Value: -1}}).SetSkip(int64(skip)).SetLimit(int64(limit))
+	cursor, err := entities.CartItemCollection.Find(ctx, filter, opts)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer cursor.Close(ctx)
+
+	var cart []entities.Cart = []entities.Cart{}
+	if err = cursor.All(ctx, &cart); err != nil {
+		return nil, 0, err
+	}
+	return &cart, cartCount, nil
 }
 
-func (r *mgRepository) ClearCart(ctx context.Context, userID string) {
-	userIDObj, _ := primitive.ObjectIDFromHex(userID)
+func (r *mgRepository) ClearCart(ctx context.Context, userID string) error {
+	userIDObj, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		return fmt.Errorf("invalid format: %w", err)
+	}
 	
-	entities.CartItemCollection.DeleteOne(ctx, bson.M{"userID": userIDObj})
+	_, err = entities.CartItemCollection.DeleteOne(ctx, bson.M{"userID": userIDObj})
+	if err != nil {
+		return fmt.Errorf("failed %w", err)
+	}
+
+	return nil
 }

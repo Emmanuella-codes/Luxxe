@@ -7,6 +7,8 @@ import (
 	"github.com/Emmanuella-codes/Luxxe/luxxe-cart/messages"
 	entities "github.com/Emmanuella-codes/Luxxe/luxxe-entities"
 	user_messages "github.com/Emmanuella-codes/Luxxe/luxxe-profile/messages"
+	product_messages "github.com/Emmanuella-codes/Luxxe/luxxe-product/messages"
+	product_repo "github.com/Emmanuella-codes/Luxxe/luxxe-repositories/product"
 	cart_repo "github.com/Emmanuella-codes/Luxxe/luxxe-repositories/cart"
 	repo_user "github.com/Emmanuella-codes/Luxxe/luxxe-repositories/user"
 	shared "github.com/Emmanuella-codes/Luxxe/luxxe-shared"
@@ -20,6 +22,14 @@ func RemoveItemFromCartPipe(ctx context.Context, dto *dtos.RemoveItemFromCartDTO
 		return &shared.PipeRes[entities.Cart]{
 			Success: false,
 			Message: user_messages.NOT_FOUND_USER,
+		}
+	}
+
+	_, err := product_repo.ProductRepo.QueryByID(ctx, productID)
+	if err != nil {
+		return &shared.PipeRes[entities.Cart]{
+			Success: false,
+			Message: product_messages.NOT_FOUND_PRODUCT,
 		}
 	}
 

@@ -6,34 +6,26 @@ import (
 	"github.com/Emmanuella-codes/Luxxe/luxxe-cart/dtos"
 	"github.com/Emmanuella-codes/Luxxe/luxxe-cart/messages"
 	entities "github.com/Emmanuella-codes/Luxxe/luxxe-entities"
-	user_messages "github.com/Emmanuella-codes/Luxxe/luxxe-profile/messages"
 	cart_repo "github.com/Emmanuella-codes/Luxxe/luxxe-repositories/cart"
-	repo_user "github.com/Emmanuella-codes/Luxxe/luxxe-repositories/user"
 	shared "github.com/Emmanuella-codes/Luxxe/luxxe-shared"
 )
 
-func GetCartPipe(ctx context.Context, dto *dtos.GetCartDTO) *shared.PipeRes[entities.Cart] {
-	userIDStr := dto.UserID
+type CartItems struct {
+	CartItemCount int64						 `json:"cartItemCount"`
+	CartItems     *[]entities.Cart `json:"cartItems"`
+}
 
-	_, error := repo_user.UserRepo.QueryByID(ctx, userIDStr)
-	if error != nil {
-		return &shared.PipeRes[entities.Cart]{
-			Success: false,
-			Message: user_messages.NOT_FOUND_USER,
-		}
-	}
+func GetCartPipe(ctx context.Context, dto *dtos.GetCartDTO) *shared.PipeRes[CartItems] {
+	userID, page := dto.UserID, dto.Page
 
-	cart, error := cart_repo.CartRepo.GetCart(ctx, userIDStr)
-	if error != nil {
-		return &shared.PipeRes[entities.Cart]{
-			Success: false,
-			Message: messages.FAIL_GET_CART,
-		}
-	}
+	cartItems, cartItemCount, _ := cart_repo.CartRepo.GetCart(ctx, userID, page)
 
-	return &shared.PipeRes[entities.Cart]{
+	return &shared.PipeRes[CartItems]{
 		Success: true,
 		Message: messages.SUCCESS_GET_CART_ITEMS,
-		Data:    cart,
+		Data:    &CartItems{
+			CartItemCount: cartItemCount,
+			CartItems:     cartItems,
+		},
 	}
 }

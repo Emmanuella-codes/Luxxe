@@ -3,11 +3,13 @@ package pipes
 import (
 	"context"
 
-	entities "github.com/Emmanuella-codes/Luxxe/luxxe-entities"
 	"github.com/Emmanuella-codes/Luxxe/luxxe-cart/dtos"
 	"github.com/Emmanuella-codes/Luxxe/luxxe-cart/messages"
-	user_messages"github.com/Emmanuella-codes/Luxxe/luxxe-profile/messages"
+	entities "github.com/Emmanuella-codes/Luxxe/luxxe-entities"
+	product_messages "github.com/Emmanuella-codes/Luxxe/luxxe-product/messages"
+	user_messages "github.com/Emmanuella-codes/Luxxe/luxxe-profile/messages"
 	cart_repo "github.com/Emmanuella-codes/Luxxe/luxxe-repositories/cart"
+	product_repo "github.com/Emmanuella-codes/Luxxe/luxxe-repositories/product"
 	repo_user "github.com/Emmanuella-codes/Luxxe/luxxe-repositories/user"
 	shared "github.com/Emmanuella-codes/Luxxe/luxxe-shared"
 )
@@ -20,6 +22,14 @@ func AddToCartPipe(ctx context.Context, dto *dtos.AddToCartDTO) *shared.PipeRes[
 		return &shared.PipeRes[entities.Cart]{
 			Success: false,
 			Message: user_messages.NOT_FOUND_USER,
+		}
+	}
+
+	_, err := product_repo.ProductRepo.QueryByID(ctx, productID)
+	if err != nil {
+		return &shared.PipeRes[entities.Cart]{
+			Success: false,
+			Message: product_messages.NOT_FOUND_PRODUCT,
 		}
 	}
 
