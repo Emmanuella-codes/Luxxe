@@ -8,4 +8,5 @@ const (
 	ModelNamesEmailStats ModelNames = "emailstats"
 	ModelNamesTempStore  ModelNames = "tempstore"
 	ModelNamesProduct    ModelNames = "product"
+	ModelNamesCart    	 ModelNames = "cart"
 )
