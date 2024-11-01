@@ -12,13 +12,13 @@ import (
 
 type CartItems struct {
 	CartItemCount int64						 `json:"cartItemCount"`
-	CartItems     *[]entities.Cart `json:"cartItems"`
+	CartItems     *entities.Cart   `json:"cartItems"`
 }
 
 func GetCartPipe(ctx context.Context, dto *dtos.GetCartDTO) *shared.PipeRes[CartItems] {
-	userID, page := dto.UserID, dto.Page
+	userID := dto.UserID
 
-	cartItems, cartItemCount, _ := cart_repo.CartRepo.GetCart(ctx, userID, page)
+	cartItems, cartItemCount, _ := cart_repo.CartRepo.GetCart(ctx, userID)
 
 	return &shared.PipeRes[CartItems]{
 		Success: true,

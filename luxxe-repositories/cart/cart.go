@@ -12,7 +12,8 @@ type CartRepository interface {
 	AddToCart(ctx context.Context, userID string, productID string, quantity int) (*entities.Cart, error)
 	UpdateCartItem(ctx context.Context, userID string, productID string, quantity int) (*entities.Cart, error)
 	RemoveFromCart(ctx context.Context, userID string, productID string) (*entities.Cart, error)
-	GetCart(ctx context.Context, userID string, page int) (*[]entities.Cart, int64, error)
+	QueryByUserID(ctx context.Context, userID string) (*entities.Cart, error)
+	GetCart(ctx context.Context, userID string) (*entities.Cart, int64, error)
 	ClearCart(ctx context.Context, userID string) error
 }
 

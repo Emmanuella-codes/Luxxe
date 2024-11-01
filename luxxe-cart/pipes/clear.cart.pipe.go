@@ -24,6 +24,14 @@ func ClearCartPipe(ctx context.Context, dto *dtos.ClearCartDTO) *shared.PipeRes[
 		}
 	}
 
+	_, err = cart_repo.CartRepo.QueryByUserID(ctx, userIDStr)
+	if err != nil {
+		return &shared.PipeRes[EmptyStruct]{
+			Success: false,
+			Message: messages.NOT_FOUND_CART,
+		}
+	}
+
 	err = cart_repo.CartRepo.ClearCart(ctx, userIDStr)
 	if err != nil {
 		return &shared.PipeRes[EmptyStruct]{

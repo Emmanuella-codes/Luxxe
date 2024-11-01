@@ -12,7 +12,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	entities "github.com/Emmanuella-codes/Luxxe/luxxe-entities"
-	"github.com/Emmanuella-codes/Luxxe/luxxe-shared/misc"
 )
 
 type mgRepository struct {
@@ -25,6 +24,8 @@ func newMgRepository(log *log.Logger) CartRepository {
 	}
 }
 
+const maxCartItems int = 20
+
 func (r *mgRepository) AddToCart(ctx context.Context, userID string, productID string, quantity int) (*entities.Cart, error) {
 	userIDObj, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
@@ -33,6 +34,26 @@ func (r *mgRepository) AddToCart(ctx context.Context, userID string, productID s
 	productIDObj, err := primitive.ObjectIDFromHex(productID)
 	if err != nil {
 		return nil, fmt.Errorf("invalid product ID: %w", err)
+	}
+
+	pipeline := []bson.M{
+		{"$match": bson.M{"userID": userIDObj}},
+		{"$project": bson.M{"itemCount": bson.M{"$size": "$items"}}},
+	}
+	cursor, err := entities.CartItemCollection.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, fmt.Errorf("error counting items: %w", err)
+	}
+	defer cursor.Close(ctx)
+
+	var cartInfo struct { ItemCount int}
+	if cursor.Next(ctx) {
+		if err := cursor.Decode(&cartInfo); err != nil {
+			return nil, fmt.Errorf("error decoding item count: %w", err)
+		}
+	}
+	if cartInfo.ItemCount >= maxCartItems {
+		return nil, fmt.Errorf("cart item limit of %d reached", maxCartItems)
 	}
 
 	filter := bson.M{
@@ -124,10 +145,10 @@ func (r *mgRepository) RemoveFromCart(ctx context.Context, userID string, produc
 	return &updatedCart, nil
 }
 
-func (r *mgRepository) GetCart(ctx context.Context, userID string, page int) (*[]entities.Cart, int64, error) {
+func (r *mgRepository) GetCart(ctx context.Context, userID string) (*entities.Cart, int64, error) {
 	userIDObj, _ := primitive.ObjectIDFromHex(userID)
 
-	skip, limit := misc.Pagination(misc.PaginationStruct{Page: page})
+	// skip, limit := misc.Pagination(misc.PaginationStruct{Page: page})
 
 	filter := &bson.M{"userID": userIDObj}
 
@@ -136,18 +157,32 @@ func (r *mgRepository) GetCart(ctx context.Context, userID string, page int) (*[
 		return nil, 0, err
 	}
 
-	opts := options.Find().SetSort(bson.D{{Key: "createdAt", Value: -1}}).SetSkip(int64(skip)).SetLimit(int64(limit))
-	cursor, err := entities.CartItemCollection.Find(ctx, filter, opts)
+	var cart entities.Cart
+	err = entities.CartItemCollection.FindOne(ctx, filter).Decode(&cart)
 	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, cartCount, nil
+		}
 		return nil, 0, err
 	}
-	defer cursor.Close(ctx)
-
-	var cart []entities.Cart = []entities.Cart{}
-	if err = cursor.All(ctx, &cart); err != nil {
-		return nil, 0, err
-	}
+	
 	return &cart, cartCount, nil
+}
+
+func (r *mgRepository) QueryByUserID(ctx context.Context, userID string) (*entities.Cart, error) {
+	userIDObj, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid user ID: %w", err)
+	}
+	
+	
+	filter := &primitive.M{"userID": userIDObj}	
+	cart, err := entities.CartItemModel.FindOne(ctx, filter)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find cart: %w", err)
+	}
+
+	return cart, nil
 }
 
 func (r *mgRepository) ClearCart(ctx context.Context, userID string) error {
