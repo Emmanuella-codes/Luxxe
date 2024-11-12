@@ -175,8 +175,7 @@ func (r *mgRepository) QueryByUserID(ctx context.Context, userID string) (*entit
 		return nil, fmt.Errorf("invalid user ID: %w", err)
 	}
 	
-	
-	filter := &primitive.M{"userID": userIDObj}	
+	filter := &primitive.M{"userID": userIDObj}
 	cart, err := entities.CartItemModel.FindOne(ctx, filter)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find cart: %w", err)
