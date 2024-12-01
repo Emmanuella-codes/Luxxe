@@ -1,8 +1,9 @@
 package dtos
 
-type CreateOrderDTO struct {
+type UpdateOrderDTO struct {
 	UserID          string `json:"userID" validate:"required"`
 	CartID          string `json:"cartID" validate:"required"`
+	OrderID         string `json:"orderID" validate:"required"`
 	ShippingAddress string `json:"shippingAddress"`
-	PhoneNumber     string  `json:"phoneNumber"`
+	PhoneNumber     string `json:"phoneNumber"`
 }

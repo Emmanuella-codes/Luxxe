@@ -12,8 +12,8 @@ import (
 	shared "github.com/Emmanuella-codes/Luxxe/luxxe-shared"
 )
 
-func GetOrderPipe(ctx context.Context, dto *dtos.GetOrderDTO) *shared.PipeRes[entities.OrderManagement] {
-	userID := dto.UserID
+func UpdateOrderPipe(ctx context.Context, dto *dtos.UpdateOrderDTO) *shared.PipeRes[entities.OrderManagement] {
+	userID, orderID, shippingAddress, phoneNumber := dto.UserID, dto.OrderID, dto.ShippingAddress, dto.PhoneNumber 
 
 	_, err := repo_user.UserRepo.QueryByID(ctx, userID)
 	if err != nil {
@@ -23,7 +23,7 @@ func GetOrderPipe(ctx context.Context, dto *dtos.GetOrderDTO) *shared.PipeRes[en
 		}
 	}
 
-	order, err := order_repo.OrderRepo.GetOrder(ctx, userID)
+	_, err = order_repo.OrderRepo.QueryByID(ctx, orderID)
 	if err != nil {
 		return &shared.PipeRes[entities.OrderManagement]{
 			Success: false,
@@ -31,9 +31,22 @@ func GetOrderPipe(ctx context.Context, dto *dtos.GetOrderDTO) *shared.PipeRes[en
 		}
 	}
 
+	updatedOrder := &entities.OrderManagement{
+		ShippingAddress: shippingAddress,
+		PhoneNumber:   	 phoneNumber,
+	}
+
+	order, err := order_repo.OrderRepo.UpdateOrder(ctx, updatedOrder)
+	if err != nil {
+		return &shared.PipeRes[entities.OrderManagement]{
+			Success: false,
+			Message: order_messages.FAIL_UPDATE_ORDER,
+		}
+	}
+
 	return &shared.PipeRes[entities.OrderManagement]{
 		Success: true,
-		Message: order_messages.SUCCESS_GET_ORDER,
-		Data: 	 order,
+		Message: order_messages.SUCCESS_CREATE_ORDER,
+		Data: order,
 	}
 }

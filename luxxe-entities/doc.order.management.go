@@ -11,8 +11,9 @@ import (
 type OrderManagement struct {
 	ID        			primitive.ObjectID 	`json:"_id" bson:"_id"`
 	UserID    			primitive.ObjectID 	`json:"userID" bson:"userID"`
+	CartID 					primitive.ObjectID  `json:"cartID" bson:"cart"`
 	ShippingAddress string 							`json:"shippingAddress" bson:"shippingAddress"`
-	PhoneNumber 		int 								`json:"phoneNumber" bson:"phoneNumber"`
+	PhoneNumber 		string 								`json:"phoneNumber" bson:"phoneNumber"`
 	CreatedAt 			time.Time          	`json:"createdAt" bson:"createdAt"`
 	UpdatedAt 			time.Time          	`json:"updatedAt" bson:"updatedAt"`
 }

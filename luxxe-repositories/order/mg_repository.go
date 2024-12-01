@@ -9,6 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 
 	entities "github.com/Emmanuella-codes/Luxxe/luxxe-entities"
 )
@@ -37,26 +38,52 @@ func (r *mgRepository) Create(ctx context.Context, order *entities.OrderManageme
 	)
 }
 
-func (r *mgRepository) GetOrder(ctx context.Context, userID string) (*entities.OrderManagement, int64, error) {
+func (r *mgRepository) UpdateOrder(ctx context.Context, order *entities.OrderManagement) (*entities.OrderManagement, error) {
+	userID, orderID, shippingAddress, phoneNumber := order.UserID, order.ID, order.ShippingAddress, order.PhoneNumber
+
+	if orderID.IsZero() {
+		return nil, fmt.Errorf("order ID is required")
+	}
+
+	filter := bson.M{"_id": orderID, "userID": userID}
+
+	update := bson. M{
+		"$set": bson.M{
+			"shippingAddress": shippingAddress,
+			"phoneNumber": 		 phoneNumber,
+			"updatedAt": 			 time.Now(),
+		},
+	}
+
+	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+	var updatedOrder entities.OrderManagement
+
+	err := entities.OrderManagementCollection.FindOneAndUpdate(ctx, filter, update, opts).Decode(&updatedOrder)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+				return nil, fmt.Errorf("order not found")
+		}
+		return nil, fmt.Errorf("failed to update order: %w", err)
+	}
+
+	return &updatedOrder, nil
+}
+
+func (r *mgRepository) GetOrder(ctx context.Context, userID string) (*entities.OrderManagement, error) {
 	userIDObj, _ := primitive.ObjectIDFromHex(userID)
 
 	filter := &bson.M{"userID": userIDObj}
 
-	orderCount, err := entities.OrderManagementCollection.CountDocuments(ctx, filter)
-	if err != nil {
-		return nil, 0, err
-	}
-
 	var order entities.OrderManagement
-	err = entities.OrderManagementCollection.FindOne(ctx, filter).Decode(&order)
+	err := entities.OrderManagementCollection.FindOne(ctx, filter).Decode(&order)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return nil, orderCount, nil
+			return nil, nil
 		}
-		return nil, 0, err
+		return nil, fmt.Errorf("failed to retrieve order: %w", err)
 	}
 
-	return &order, orderCount, nil
+	return &order, nil
 }
 
 func (r *mgRepository) QueryByUserID(ctx context.Context, userID string) (*entities.OrderManagement, error) {
@@ -69,6 +96,21 @@ func (r *mgRepository) QueryByUserID(ctx context.Context, userID string) (*entit
 	order, err := entities.OrderManagementModel.FindOne(ctx, filter)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find cart: %w", err)
+	}
+
+	return order, nil
+}
+
+func (r *mgRepository) QueryByID(ctx context.Context, orderID string) (*entities.OrderManagement, error) {
+	orderIDObj, err := primitive.ObjectIDFromHex(orderID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid order ID: %w", err)
+	}
+
+	filter := &primitive.M{"orderID": orderIDObj}
+	order, err := entities.OrderManagementModel.FindOne(ctx, filter)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find order: %w", err)
 	}
 
 	return order, nil

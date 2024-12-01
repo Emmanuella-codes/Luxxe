@@ -1,5 +1,5 @@
 package dtos
 
-type DeleteOrderDTO struct {
+type CancelOrderDTO struct {
 	UserID   string `json:"userID" validate:"required"`
 }
