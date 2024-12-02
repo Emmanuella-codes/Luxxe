@@ -23,7 +23,7 @@ type OrderManagement struct {
 	ShippingAddress string 							`json:"shippingAddress" bson:"shippingAddress"`
 	PhoneNumber 		string 							`json:"phoneNumber" bson:"phoneNumber"`
 	OrderStatus 		OrderStatus 				`json:"orderStatus" bson:"orderStatus"`
-	CartTotal 			int 								`json:"cartTotal" bson:"cartTotal"`
+	CartTotal 			float64 						`json:"cartTotal" bson:"cartTotal"`
 	CreatedAt 			time.Time          	`json:"createdAt" bson:"createdAt"`
 	UpdatedAt 			time.Time          	`json:"updatedAt" bson:"updatedAt"`
 }

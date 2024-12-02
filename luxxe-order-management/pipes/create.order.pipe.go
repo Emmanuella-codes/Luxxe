@@ -38,6 +38,8 @@ func CreateOrderPipe(ctx context.Context, dto *dtos.CreateOrderDTO) *shared.Pipe
 		CartID:       		cart.ID,
 		ShippingAddress: 	shippingAddress,
 		PhoneNumber: 			phoneNumber,
+		OrderStatus:      entities.OrderStatusPending,
+		CartTotal:        cart.TotalAmount,
 	}
 
 	order, err := order_repo.OrderRepo.Create(ctx, orderObj)

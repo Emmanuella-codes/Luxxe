@@ -18,7 +18,7 @@ type Cart struct {
 	ID          primitive.ObjectID `json:"_id" bson:"_id"`
 	UserID      primitive.ObjectID `json:"userID" bson:"userID"`
 	Items       []CartItem         `json:"items" bson:"items"`
-	TotalAmount float64						 `json:"total" bson:"total"`
+	TotalAmount float64						 `json:"totalAmount" bson:"totalAmount"`
 	CreatedAt   time.Time          `json:"createdAt" bson:"createdAt"`
 	UpdatedAt   time.Time          `json:"updatedAt" bson:"updatedAt"`
 }

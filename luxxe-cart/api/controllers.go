@@ -36,7 +36,7 @@ func addToCart(ctx *fiber.Ctx) error {
 			},
 		)
 	}
-	// AddToCart.UserID = userID
+	AddToCart.UserID = userID
 
 	product, err := product_repo.ProductRepo.QueryByID(ctx.Context(), AddToCart.ProductID)
 	if err != nil {
@@ -233,6 +233,7 @@ func removeItemFromCart(ctx *fiber.Ctx) error {
 	} else {
 		statusCode = fiber.StatusBadRequest
 	}
+	
 	return ctx.Status(statusCode).JSON(
 		fiber.Map{
 			"statusCode": statusCode,

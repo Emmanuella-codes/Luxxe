@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/Emmanuella-codes/Luxxe/luxxe-repositories/cart"
+	"github.com/Emmanuella-codes/Luxxe/luxxe-repositories/order"
 	"github.com/Emmanuella-codes/Luxxe/luxxe-repositories/product"
 	"github.com/Emmanuella-codes/Luxxe/luxxe-repositories/tempstore"
 	"github.com/Emmanuella-codes/Luxxe/luxxe-repositories/user"
@@ -16,4 +17,5 @@ func InitRepositories() {
 	tempstore.InitTempStoreRepo(&logger)
 	product.InitProductRepo(&logger)
 	cart.InitCartRepo(&logger)
+	order.InitOrderRepo(&logger)
 }

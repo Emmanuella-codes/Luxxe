@@ -11,24 +11,24 @@ var OrderRoutes = []shared.RouterSchema{
 		RouteMethod: shared.RouteMethodPost,
 		Path:   		 "/",
 		Middlewares: []typings.FiberMiddleware{services.BaseAuthToken, services.IsAnyUserMiddleware},
-		// Handler: 		 ,
+		Handler: 		 createOrder,
 	},
 	{
 		RouteMethod: shared.RouteMethodPut,
 		Path:   		 "/",
 		Middlewares: []typings.FiberMiddleware{services.BaseAuthToken, services.IsAnyUserMiddleware},
-		// Handler: 		 ,
+		Handler: 		 updateOrder,
 	},
 	{
 		RouteMethod: shared.RouteMethodGet,
 		Path:   		 "/",
 		Middlewares: []typings.FiberMiddleware{services.BaseAuthToken, services.IsAnyUserMiddleware},
-		// Handler: 		 ,
+		Handler: 		 getOrder,
 	},
 	{
 		RouteMethod: shared.RouteMethodDelete,
 		Path:   		 "/",
 		Middlewares: []typings.FiberMiddleware{services.BaseAuthToken, services.IsAnyUserMiddleware},
-		// Handler: 		 ,
+		Handler: 		 cancelOrder,
 	},
 }

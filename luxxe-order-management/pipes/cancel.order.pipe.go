@@ -43,7 +43,7 @@ func CancelOrderPipe(ctx context.Context, dto *dtos.CancelOrderDTO) *shared.Pipe
 
 	return &shared.PipeRes[EmptyStruct]{
 		Success: true,
-		Message: order_messages.SUCCESS_UPDATE_ORDER,
-		Data: &EmptyStruct{},
+		Message: order_messages.SUCCESS_CANCEL_ORDER,
+		Data: 	 &EmptyStruct{},
 	}
 }
