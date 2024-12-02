@@ -11,14 +11,16 @@ import (
 type CartItem struct {
 	ProductID primitive.ObjectID `json:"productID" bson:"productID"`
 	Quantity  int                `json:"quantity" bson:"quantity"`
+	Price     float64            `json:"price" bson:"price"`
 }
 
 type Cart struct {
-	ID        primitive.ObjectID `json:"_id" bson:"_id"`
-	UserID    primitive.ObjectID `json:"userID" bson:"userID"`
-	Items     []CartItem         `json:"items" bson:"items"`
-	CreatedAt time.Time          `json:"createdAt" bson:"createdAt"`
-	UpdatedAt time.Time          `json:"updatedAt" bson:"updatedAt"`
+	ID          primitive.ObjectID `json:"_id" bson:"_id"`
+	UserID      primitive.ObjectID `json:"userID" bson:"userID"`
+	Items       []CartItem         `json:"items" bson:"items"`
+	TotalAmount float64						 `json:"total" bson:"total"`
+	CreatedAt   time.Time          `json:"createdAt" bson:"createdAt"`
+	UpdatedAt   time.Time          `json:"updatedAt" bson:"updatedAt"`
 }
 
 var CartItemModel *Model[Cart]

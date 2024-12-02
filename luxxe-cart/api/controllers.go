@@ -6,10 +6,12 @@ import (
 	"github.com/gofiber/fiber/v2"
 
 	auth_messages "github.com/Emmanuella-codes/Luxxe/luxxe-auth/messages"
+	product_messages "github.com/Emmanuella-codes/Luxxe/luxxe-product/messages"
 	"github.com/Emmanuella-codes/Luxxe/luxxe-auth/services"
 	"github.com/Emmanuella-codes/Luxxe/luxxe-cart/dtos"
 	"github.com/Emmanuella-codes/Luxxe/luxxe-cart/pipes"
 	repo_user "github.com/Emmanuella-codes/Luxxe/luxxe-repositories/user"
+	product_repo "github.com/Emmanuella-codes/Luxxe/luxxe-repositories/product"
 	shared_api "github.com/Emmanuella-codes/Luxxe/luxxe-shared/api"
 )
 
@@ -34,7 +36,19 @@ func addToCart(ctx *fiber.Ctx) error {
 			},
 		)
 	}
-	AddToCart.UserID = userID
+	// AddToCart.UserID = userID
+
+	product, err := product_repo.ProductRepo.QueryByID(ctx.Context(), AddToCart.ProductID)
+	if err != nil {
+		statusCode = fiber.StatusBadRequest
+		return ctx.Status(statusCode).JSON(
+			fiber.Map{
+				"statusCode": statusCode,
+				"message":    product_messages.NOT_FOUND_PRODUCT,
+			},
+		)
+	}
+	product.Price = AddToCart.Price
 
 	success, err := shared_api.ValidateAPIData(AddToCart)
 	if !success {

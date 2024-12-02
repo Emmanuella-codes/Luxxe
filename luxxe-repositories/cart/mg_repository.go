@@ -24,9 +24,9 @@ func newMgRepository(log *log.Logger) CartRepository {
 	}
 }
 
-const maxCartItems int = 20
+const maxCartItems int = 30
 
-func (r *mgRepository) AddToCart(ctx context.Context, userID string, productID string, quantity int) (*entities.Cart, error) {
+func (r *mgRepository) AddToCart(ctx context.Context, userID string, productID string, quantity int, price float64) (*entities.Cart, error) {
 	userIDObj, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
 		return nil, fmt.Errorf("invalid user ID: %w", err)
@@ -62,7 +62,11 @@ func (r *mgRepository) AddToCart(ctx context.Context, userID string, productID s
 	}
 	update := bson.M{
 		"$set": bson.M{"updatedAt": time.Now()},
-		"$inc": bson.M{"items.$.quantity": quantity},
+		"$inc": bson.M{
+			"items.$.quantity": quantity, 
+			"items.$.price": 		price,
+			"totalAmount":      price * float64(quantity),
+		},
 	}
 
 	// Attempt to update an existing item
@@ -82,9 +86,11 @@ func (r *mgRepository) AddToCart(ctx context.Context, userID string, productID s
 	filter = bson.M{"userID": userIDObj}
 	update = bson.M{
 		"$setOnInsert": bson.M{"createdAt": time.Now()},
-		"$push": bson.M{"items": bson.M{ // Add new item to items array
-			"productID": productIDObj,
-			"quantity":  quantity,
+		"$push": bson.M{
+			"items": bson.M{ // Add new item to items array
+				"productID": productIDObj,
+				"quantity":  quantity,
+				"price": 		 price,
 		}},
 	}
 
@@ -97,19 +103,49 @@ func (r *mgRepository) AddToCart(ctx context.Context, userID string, productID s
 	return &updatedCart, nil
 }
 
-func (r *mgRepository) UpdateCartItem(ctx context.Context, userID string, productID string, quantity int) (*entities.Cart, error) {
+func (r *mgRepository) UpdateCartItem(ctx context.Context, userID string, productID string, quantity int, price float64) (*entities.Cart, error) {
 	userIDObj, _ := primitive.ObjectIDFromHex(userID)
 	productIDObj, _ := primitive.ObjectIDFromHex(productID)
 
 	filter := bson.M{"userID": userIDObj, "items.productID": productIDObj}
+
+	var existingCart entities.Cart
+    err := entities.CartItemCollection.FindOne(ctx, filter).Decode(&existingCart)
+    if err != nil {
+        if err == mongo.ErrNoDocuments {
+            return nil, fmt.Errorf("item not found in the cart")
+        }
+        return nil, err
+    }
+
+		//get the current item's price and quantity
+		var currentItem *entities.CartItem
+    for _, item := range existingCart.Items {
+        if item.ProductID == productIDObj {
+            currentItem = &item
+            break
+        }
+    }
+    if currentItem == nil {
+        return nil, fmt.Errorf("item not found in the cart")
+    }
+
+		oldAmount := float64(currentItem.Quantity) * currentItem.Price
+    newAmount := float64(quantity) * price
+    amountDifference := newAmount - oldAmount
+
 	update := bson.M{
-		"$inc": bson.M{"items.$.quantity": quantity,},
+		"$inc": bson.M{
+			"items.$.quantity": quantity - currentItem.Quantity, 
+			"items.$.price": 		price - currentItem.Price, 
+			"totalAmount": 			amountDifference,		// updated amount
+		},
 		"$set": bson.M{"updatedAt": time.Now()},
 	}
 	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
 	
 	var updatedCart entities.Cart
-	err := entities.CartItemCollection.FindOneAndUpdate(ctx, filter, update, opts).Decode(&updatedCart)
+	err = entities.CartItemCollection.FindOneAndUpdate(ctx, filter, update, opts).Decode(&updatedCart)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			return nil, fmt.Errorf("item not found in the cart")

@@ -13,7 +13,7 @@ import (
 )
 
 func UpdateCartItemPipe(ctx context.Context, dto *dtos.UpdateCartItemDTO) *shared.PipeRes[entities.Cart] {
-	userIDStr, productID, quantity := dto.UserID, dto.ProductID, dto.Quantity
+	userIDStr, productID, quantity, price := dto.UserID, dto.ProductID, dto.Quantity, dto.Price
 
 	_, error := repo_user.UserRepo.QueryByID(ctx, userIDStr)
 	if error != nil {
@@ -23,7 +23,7 @@ func UpdateCartItemPipe(ctx context.Context, dto *dtos.UpdateCartItemDTO) *share
 		}
 	}
 
-	cart, error := cart_repo.CartRepo.UpdateCartItem(ctx, userIDStr, productID, quantity)
+	cart, error := cart_repo.CartRepo.UpdateCartItem(ctx, userIDStr, productID, quantity, price)
 	if error != nil {
 		return &shared.PipeRes[entities.Cart]{
 			Success: false,
