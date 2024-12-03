@@ -9,9 +9,10 @@ import (
 )
 
 type CartItem struct {
-	ProductID primitive.ObjectID `json:"productID" bson:"productID"`
-	Quantity  int                `json:"quantity" bson:"quantity"`
-	Price     float64            `json:"price" bson:"price"`
+	ProductID 	primitive.ObjectID `json:"productID" bson:"productID"`
+	Quantity  	int                `json:"quantity" bson:"quantity"`
+	Price     	float64            `json:"price" bson:"price"`
+	TotalPrice 	float64 					 `json:"totalPrice" bson:"totalPrice"`
 }
 
 type Cart struct {

@@ -11,6 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
+	cart_service "github.com/Emmanuella-codes/Luxxe/luxxe-cart/service"
 	entities "github.com/Emmanuella-codes/Luxxe/luxxe-entities"
 )
 
@@ -56,16 +57,18 @@ func (r *mgRepository) AddToCart(ctx context.Context, userID string, productID s
 		return nil, fmt.Errorf("cart item limit of %d reached", maxCartItems)
 	}
 
+	itemTotalPrice := float64(quantity) * price
+
 	filter := bson.M{
 		"userID": userIDObj,
 		"items.productID": productIDObj,
 	}
 	update := bson.M{
-		"$set": bson.M{"updatedAt": time.Now()},
-		"$inc": bson.M{
-			"items.$.quantity": quantity, 
-			"items.$.price": 		price,
-			"totalAmount":      price * float64(quantity),
+		"$inc": bson.M{"items.$.quantity": quantity},
+		"$set": bson.M{
+			"items.$.price": 			price,
+			"items.$.totalPrice": itemTotalPrice,
+			"updatedAt":     			time.Now(),
 		},
 	}
 
@@ -88,9 +91,10 @@ func (r *mgRepository) AddToCart(ctx context.Context, userID string, productID s
 		"$setOnInsert": bson.M{"createdAt": time.Now()},
 		"$push": bson.M{
 			"items": bson.M{ // Add new item to items array
-				"productID": productIDObj,
-				"quantity":  quantity,
-				"price": 		 price,
+				"productID": 	productIDObj,
+				"quantity":  	quantity,
+				"price": 		 	price,
+				"totalPrice": itemTotalPrice,
 		}},
 	}
 
@@ -99,6 +103,13 @@ func (r *mgRepository) AddToCart(ctx context.Context, userID string, productID s
 	if err != nil {
 		return nil, fmt.Errorf("failed to add new item to cart: %w", err)
 	}
+
+	totalAmount := cart_service.CalculateCartTotal(ctx, userIDObj)
+	_, updateErr := entities.CartItemCollection.UpdateOne(ctx, bson.M{"userID": userIDObj}, bson.M{"$set": bson.M{"totalAmount": totalAmount}})
+	if updateErr != nil {
+		return nil, fmt.Errorf("error updating total amount: %w", updateErr)
+	}
+	updatedCart.TotalAmount = totalAmount
 
 	return &updatedCart, nil
 }
@@ -130,17 +141,20 @@ func (r *mgRepository) UpdateCartItem(ctx context.Context, userID string, produc
         return nil, fmt.Errorf("item not found in the cart")
     }
 
-		oldAmount := float64(currentItem.Quantity) * currentItem.Price
+		oldAmount := currentItem.TotalPrice
     newAmount := float64(quantity) * price
     amountDifference := newAmount - oldAmount
 
 	update := bson.M{
-		"$inc": bson.M{
-			"items.$.quantity": quantity - currentItem.Quantity, 
-			"items.$.price": 		price - currentItem.Price, 
-			"totalAmount": 			amountDifference,		// updated amount
+		"$set": bson.M{
+			"items.$.quantity":   quantity,
+			"items.$.price":      price,
+			"items.$.totalPrice": newAmount,
+			"updatedAt":          time.Now(),
 		},
-		"$set": bson.M{"updatedAt": time.Now()},
+		"$inc": bson.M{
+			"totalAmount": amountDifference, // Adjust the total amount
+		},
 	}
 	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
 	
