@@ -183,11 +183,34 @@ func (r *mgRepository) RemoveFromCart(ctx context.Context, userID string, produc
 	}
 
 	opts := options.FindOneAndUpdate()
-	after := options.After             // ReturnDocument should be a pointer to ReturnDocument
+	after := options.After             
 	opts.ReturnDocument = &after
 
+	var existingCart entities.Cart
+	err := entities.CartItemCollection.FindOne(ctx, filter).Decode(&existingCart)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, fmt.Errorf("cart not found")
+		}
+		return nil, fmt.Errorf("error fetching cart: %w", err)
+	}
+
+	var removedItem *entities.CartItem
+	for _, item := range existingCart.Items {
+		if item.ProductID == productIDObj {
+			removedItem = &item
+			break
+		}
+	}
+	if removedItem == nil {
+		return nil, fmt.Errorf("item not found in the cart")
+	}
+
+	amountDifference := -removedItem.TotalPrice
+	update["$inc"] = bson.M{"totalAmount": amountDifference}
+
 	var updatedCart entities.Cart
-	err := entities.CartItemCollection.FindOneAndUpdate(ctx, filter, update, opts).Decode(&updatedCart)
+	err = entities.CartItemCollection.FindOneAndUpdate(ctx, filter, update, opts).Decode(&updatedCart)
 	if err != nil {
 		return nil, err
 	}

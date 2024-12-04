@@ -19,7 +19,7 @@ const (
 type OrderManagement struct {
 	ID        			primitive.ObjectID 	`json:"_id" bson:"_id"`
 	UserID    			primitive.ObjectID 	`json:"userID" bson:"userID"`
-	CartID 					primitive.ObjectID  `json:"cartID" bson:"cart"`
+	CartID 					primitive.ObjectID  `json:"cartID" bson:"cartID"`
 	ShippingAddress string 							`json:"shippingAddress" bson:"shippingAddress"`
 	PhoneNumber 		string 							`json:"phoneNumber" bson:"phoneNumber"`
 	OrderStatus 		OrderStatus 				`json:"orderStatus" bson:"orderStatus"`

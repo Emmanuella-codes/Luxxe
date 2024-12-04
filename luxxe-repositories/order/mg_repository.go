@@ -25,14 +25,17 @@ func newMgRepository(log *log.Logger) OrderRepository {
 }
 
 func (r *mgRepository) Create(ctx context.Context, order *entities.OrderManagement) (*entities.OrderManagement, error) {
-	userID, shippingAddress, phoneNumber := order.UserID, order.ShippingAddress, order.PhoneNumber
+	userID, cartID, shippingAddress, phoneNumber := order.UserID, order.CartID, order.ShippingAddress, order.PhoneNumber
 
 	return entities.OrderManagementModel.Create(
 		ctx,
 		&bson.M{
 			"userID": 				 userID,
+			"cartID": 				 cartID,
 			"shippingAddress": shippingAddress,
 			"phoneNumber": 		 phoneNumber,
+			"orderStatus":     order.OrderStatus,
+			"cartTotal":       order.CartTotal,
 			"createdAt": 			 time.Now(),
 		},
 	)

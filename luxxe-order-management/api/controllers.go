@@ -34,8 +34,9 @@ func createOrder(ctx *fiber.Ctx) error {
 			},
 		)
 	}
+	CreateOrder.UserID = userID
 
-  _, err = cart_repo.CartRepo.QueryByUserID(ctx.Context(), userID)
+  cart, err := cart_repo.CartRepo.QueryByUserID(ctx.Context(), userID)
   if err != nil {
 		statusCode = fiber.StatusBadRequest
 		return ctx.Status(statusCode).JSON(
@@ -45,6 +46,7 @@ func createOrder(ctx *fiber.Ctx) error {
 			},
 		)
 	}
+	CreateOrder.CartID = cart.ID.Hex()
 
   success, err := shared_api.ValidateAPIData(CreateOrder)
 	if !success {
