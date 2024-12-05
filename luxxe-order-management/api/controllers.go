@@ -1,28 +1,28 @@
 package api
 
 import (
-	"fmt"
-
 	"github.com/gofiber/fiber/v2"
 
 	auth_messages "github.com/Emmanuella-codes/Luxxe/luxxe-auth/messages"
 	"github.com/Emmanuella-codes/Luxxe/luxxe-auth/services"
-	"github.com/Emmanuella-codes/Luxxe/luxxe-cart/dtos"
-	"github.com/Emmanuella-codes/Luxxe/luxxe-cart/pipes"
-	product_messages "github.com/Emmanuella-codes/Luxxe/luxxe-product/messages"
-	product_repo "github.com/Emmanuella-codes/Luxxe/luxxe-repositories/product"
+	cart_messages "github.com/Emmanuella-codes/Luxxe/luxxe-cart/messages"
+	order_messages "github.com/Emmanuella-codes/Luxxe/luxxe-order-management/messages"
+	"github.com/Emmanuella-codes/Luxxe/luxxe-order-management/dtos"
+	"github.com/Emmanuella-codes/Luxxe/luxxe-order-management/pipes"
+	cart_repo "github.com/Emmanuella-codes/Luxxe/luxxe-repositories/cart"
+	order_repo "github.com/Emmanuella-codes/Luxxe/luxxe-repositories/order"
 	repo_user "github.com/Emmanuella-codes/Luxxe/luxxe-repositories/user"
 	shared_api "github.com/Emmanuella-codes/Luxxe/luxxe-shared/api"
 )
 
-func addToCart(ctx *fiber.Ctx) error {
-	AddToCart := new(dtos.AddToCartDTO)
+func createOrder(ctx *fiber.Ctx) error {
+  CreateOrder := new(dtos.CreateOrderDTO)
 
-	if err := ctx.BodyParser(AddToCart); err != nil {
+  if err := ctx.BodyParser(CreateOrder); err != nil {
 		return err
 	}
 
-	AccountToken := ctx.Locals("token").(*services.AccountTokenStruct)
+  AccountToken := ctx.Locals("token").(*services.AccountTokenStruct)
 	userID := AccountToken.UserID
 
 	var statusCode int
@@ -36,21 +36,21 @@ func addToCart(ctx *fiber.Ctx) error {
 			},
 		)
 	}
-	AddToCart.UserID = userID
+	CreateOrder.UserID = userID
 
-	product, err := product_repo.ProductRepo.QueryByID(ctx.Context(), AddToCart.ProductID)
-	if err != nil {
+  cart, err := cart_repo.CartRepo.QueryByUserID(ctx.Context(), userID)
+  if err != nil {
 		statusCode = fiber.StatusBadRequest
 		return ctx.Status(statusCode).JSON(
 			fiber.Map{
 				"statusCode": statusCode,
-				"message":    product_messages.NOT_FOUND_PRODUCT,
+				"message":    cart_messages.NOT_FOUND_CART,
 			},
 		)
 	}
-	AddToCart.Price = product.Price 
+	CreateOrder.CartID = cart.ID.Hex()
 
-	success, err := shared_api.ValidateAPIData(AddToCart)
+  success, err := shared_api.ValidateAPIData(CreateOrder)
 	if !success {
 		return ctx.Status(fiber.StatusBadRequest).JSON(
 			fiber.Map{
@@ -62,7 +62,7 @@ func addToCart(ctx *fiber.Ctx) error {
 		)
 	}
 
-	res := pipes.AddToCartPipe(ctx.Context(), AddToCart)
+  res := pipes.CreateOrderPipe(ctx.Context(), CreateOrder)
 	if res.Success {
 		statusCode = fiber.StatusOK
 	} else {
@@ -79,17 +79,17 @@ func addToCart(ctx *fiber.Ctx) error {
 	)
 }
 
-func updateCart(ctx *fiber.Ctx) error {
-	UpdateCart := new(dtos.UpdateCartItemDTO)
+func updateOrder(ctx *fiber.Ctx) error {
+  UpdateOrder := new(dtos.UpdateOrderDTO)
 
-	if err := ctx.BodyParser(UpdateCart); err != nil {
-		return err
-	}
+  if err := ctx.BodyParser(UpdateOrder); err != nil {
+    return err
+  }
 
-	AccountToken := ctx.Locals("token").(*services.AccountTokenStruct)
+  AccountToken := ctx.Locals("token").(*services.AccountTokenStruct)
 	userID := AccountToken.UserID
 
-	var statusCode int
+  var statusCode int
 	_, err := repo_user.UserRepo.QueryByID(ctx.Context(), userID)
 	if err != nil {
 		statusCode = fiber.StatusBadRequest
@@ -100,21 +100,33 @@ func updateCart(ctx *fiber.Ctx) error {
 			},
 		)
 	}
-	UpdateCart.UserID = userID
+  UpdateOrder.UserID = userID
 
-	product, err := product_repo.ProductRepo.QueryByID(ctx.Context(), UpdateCart.ProductID)
+	cart, err := cart_repo.CartRepo.QueryByUserID(ctx.Context(), userID)
+  if err != nil {
+		statusCode = fiber.StatusBadRequest
+		return ctx.Status(statusCode).JSON(
+			fiber.Map{
+				"statusCode": statusCode,
+				"message":    cart_messages.NOT_FOUND_CART,
+			},
+		)
+	}
+	UpdateOrder.CartID = cart.ID.Hex()
+
+	order, err := order_repo.OrderRepo.QueryByUserID(ctx.Context(), userID)
 	if err != nil {
 		statusCode = fiber.StatusBadRequest
 		return ctx.Status(statusCode).JSON(
 			fiber.Map{
 				"statusCode": statusCode,
-				"message":    product_messages.NOT_FOUND_PRODUCT,
+				"message":    order_messages.FAIL_GET_ORDER,
 			},
 		)
 	}
-	UpdateCart.Price = product.Price 
+	UpdateOrder.OrderID = order.ID.Hex()
 
-	success, err := shared_api.ValidateAPIData(UpdateCart)
+  success, err := shared_api.ValidateAPIData(UpdateOrder)
 	if !success {
 		return ctx.Status(fiber.StatusBadRequest).JSON(
 			fiber.Map{
@@ -126,14 +138,14 @@ func updateCart(ctx *fiber.Ctx) error {
 		)
 	}
 
-	res := pipes.UpdateCartItemPipe(ctx.Context(), UpdateCart)
-	if res.Success {
+  res := pipes.UpdateOrderPipe(ctx.Context(), UpdateOrder)
+  if res.Success {
 		statusCode = fiber.StatusOK
 	} else {
 		statusCode = fiber.StatusBadRequest
 	}
 
-	return ctx.Status(statusCode).JSON(
+  return ctx.Status(statusCode).JSON(
 		fiber.Map{
 			"statusCode": statusCode,
 			"message":    res.Message,
@@ -143,17 +155,17 @@ func updateCart(ctx *fiber.Ctx) error {
 	)
 }
 
-func getCart(ctx *fiber.Ctx) error {
-	GetCart := new(dtos.GetCartDTO)
+func getOrder(ctx *fiber.Ctx) error {
+  GetOrder := new(dtos.GetOrderDTO)
 
-	if err := ctx.QueryParser(GetCart); err != nil {
+  if err := ctx.QueryParser(GetOrder); err != nil {
 		return err
 	}
 
 	AccountToken := ctx.Locals("token").(*services.AccountTokenStruct)
 	userID := AccountToken.UserID
 
-	var statusCode int
+  var statusCode int
 	_, err := repo_user.UserRepo.QueryByID(ctx.Context(), userID)
 	if err != nil {
 		statusCode = fiber.StatusBadRequest
@@ -164,9 +176,9 @@ func getCart(ctx *fiber.Ctx) error {
 			},
 		)
 	}
-	GetCart.UserID = userID
-	
-	success, err := shared_api.ValidateAPIData(GetCart)
+	GetOrder.UserID = userID
+
+  success, err := shared_api.ValidateAPIData(GetOrder)
 	if !success {
 		return ctx.Status(fiber.StatusBadRequest).JSON(
 			fiber.Map{
@@ -178,8 +190,8 @@ func getCart(ctx *fiber.Ctx) error {
 		)
 	}
 
-	res := pipes.GetCartPipe(ctx.Context(), GetCart)
-	if res.Success {
+  res := pipes.GetOrderPipe(ctx.Context(), GetOrder)
+  if res.Success {
 		statusCode = fiber.StatusOK
 	} else {
 		statusCode = fiber.StatusBadRequest
@@ -192,7 +204,7 @@ func getCart(ctx *fiber.Ctx) error {
 		payload = res.Data
 	}
 
-	return ctx.Status(statusCode).JSON(
+  return ctx.Status(statusCode).JSON(
 		fiber.Map{
 			"statusCode": statusCode,
 			"message":    res.Message,
@@ -202,73 +214,17 @@ func getCart(ctx *fiber.Ctx) error {
 	)
 }
 
-func removeItemFromCart(ctx *fiber.Ctx) error {
-	RemoveItemFromCart := new(dtos.RemoveItemFromCartDTO)
+func cancelOrder(ctx *fiber.Ctx) error {
+  CancelOrder := new(dtos.CancelOrderDTO)
 
-	if err := ctx.BodyParser(RemoveItemFromCart); err != nil {
-		return err
-	}
-
-	AccountToken := ctx.Locals("token").(*services.AccountTokenStruct)
-	userID := AccountToken.UserID
-
-	fmt.Println("UserID from AccountToken:", userID)
-
-	var statusCode int
-	_, err := repo_user.UserRepo.QueryByID(ctx.Context(), userID)
-	if err != nil {
-		statusCode = fiber.StatusBadRequest
-		return ctx.Status(statusCode).JSON(
-			fiber.Map{
-				"statusCode": statusCode,
-				"message":    auth_messages.NOT_FOUND_USER,
-			},
-		)
-	}
-	RemoveItemFromCart.UserID = userID
-	
-	success, err := shared_api.ValidateAPIData(RemoveItemFromCart)
-	if !success {
-		return ctx.Status(fiber.StatusBadRequest).JSON(
-			fiber.Map{
-				"statusCode": fiber.StatusBadRequest,
-				"message":    "Invalid request data",
-				"payload":    map[string]string{},
-				"error":      err.Error(),
-			},
-		)
-	}
-
-	res := pipes.RemoveItemFromCartPipe(ctx.Context(), RemoveItemFromCart)
-	if res.Success {
-		statusCode = fiber.StatusOK
-	} else {
-		statusCode = fiber.StatusBadRequest
-	}
-	
-	return ctx.Status(statusCode).JSON(
-		fiber.Map{
-			"statusCode": statusCode,
-			"message":    res.Message,
-			"payload":    res.Data,
-			"token":      res.Token,
-		},
-	)
-}
-
-func clearCart(ctx *fiber.Ctx) error {
-	ClearCart := new(dtos.ClearCartDTO)
-
-	// if err := ctx.BodyParser(ClearCart); err != nil {
+  // if err := ctx.BodyParser(CancelOrder); err != nil {
 	// 	return err
 	// }
 
-	AccountToken := ctx.Locals("token").(*services.AccountTokenStruct)
+  AccountToken := ctx.Locals("token").(*services.AccountTokenStruct)
 	userID := AccountToken.UserID
 
-	fmt.Println("UserID from AccountToken:", userID)
-
-	var statusCode int
+  var statusCode int
 	_, err := repo_user.UserRepo.QueryByID(ctx.Context(), userID)
 	if err != nil {
 		statusCode = fiber.StatusBadRequest
@@ -279,9 +235,9 @@ func clearCart(ctx *fiber.Ctx) error {
 			},
 		)
 	}
-	ClearCart.UserID = userID
+  CancelOrder.UserID = userID
 
-	success, err := shared_api.ValidateAPIData(ClearCart)
+  success, err := shared_api.ValidateAPIData(CancelOrder)
 	if !success {
 		return ctx.Status(fiber.StatusBadRequest).JSON(
 			fiber.Map{
@@ -293,13 +249,14 @@ func clearCart(ctx *fiber.Ctx) error {
 		)
 	}
 
-	res := pipes.ClearCartPipe(ctx.Context(), ClearCart)
-	if res.Success {
+  res := pipes.CancelOrderPipe(ctx.Context(), CancelOrder)
+  if res.Success {
 		statusCode = fiber.StatusOK
 	} else {
 		statusCode = fiber.StatusBadRequest
 	}
-	return ctx.Status(statusCode).JSON(
+
+  return ctx.Status(statusCode).JSON(
 		fiber.Map{
 			"statusCode": statusCode,
 			"message":    res.Message,

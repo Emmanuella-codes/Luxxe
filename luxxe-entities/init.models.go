@@ -7,4 +7,5 @@ func InitModels() {
 	initTempStore()
 	initProduct()
 	initCartItem()
+	initOrderManagement()
 }

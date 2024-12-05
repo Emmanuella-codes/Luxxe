@@ -15,7 +15,7 @@ import (
 )
 
 func AddToCartPipe(ctx context.Context, dto *dtos.AddToCartDTO) *shared.PipeRes[entities.Cart] {
-	userIDStr, productID, quantity := dto.UserID, dto.ProductID, dto.Quantity
+	userIDStr, productID, quantity, price := dto.UserID, dto.ProductID, dto.Quantity, dto.Price
 
 	_, error := repo_user.UserRepo.QueryByID(ctx, userIDStr)
 	if error != nil {
@@ -33,7 +33,7 @@ func AddToCartPipe(ctx context.Context, dto *dtos.AddToCartDTO) *shared.PipeRes[
 		}
 	}
 
-	cart, error := cart_repo.CartRepo.AddToCart(ctx, userIDStr, productID, quantity)
+	cart, error := cart_repo.CartRepo.AddToCart(ctx, userIDStr, productID, quantity, price)
 	if error != nil {
 		return &shared.PipeRes[entities.Cart]{
 			Success: false,
