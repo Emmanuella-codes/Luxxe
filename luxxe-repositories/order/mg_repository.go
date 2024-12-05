@@ -54,6 +54,7 @@ func (r *mgRepository) UpdateOrder(ctx context.Context, order *entities.OrderMan
 		"$set": bson.M{
 			"shippingAddress": shippingAddress,
 			"phoneNumber": 		 phoneNumber,
+			"cartTotal":       order.CartTotal,
 			"updatedAt": 			 time.Now(),
 		},
 	}

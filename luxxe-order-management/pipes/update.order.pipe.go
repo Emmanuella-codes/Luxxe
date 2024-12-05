@@ -3,19 +3,19 @@ package pipes
 import (
 	"context"
 
+	cart_messages "github.com/Emmanuella-codes/Luxxe/luxxe-cart/messages"
 	entities "github.com/Emmanuella-codes/Luxxe/luxxe-entities"
 	"github.com/Emmanuella-codes/Luxxe/luxxe-order-management/dtos"
-	cart_messages "github.com/Emmanuella-codes/Luxxe/luxxe-cart/messages"
 	order_messages "github.com/Emmanuella-codes/Luxxe/luxxe-order-management/messages"
 	user_messages "github.com/Emmanuella-codes/Luxxe/luxxe-profile/messages"
-	order_repo "github.com/Emmanuella-codes/Luxxe/luxxe-repositories/order"
 	cart_repo "github.com/Emmanuella-codes/Luxxe/luxxe-repositories/cart"
+	order_repo "github.com/Emmanuella-codes/Luxxe/luxxe-repositories/order"
 	repo_user "github.com/Emmanuella-codes/Luxxe/luxxe-repositories/user"
 	shared "github.com/Emmanuella-codes/Luxxe/luxxe-shared"
 )
 
 func UpdateOrderPipe(ctx context.Context, dto *dtos.UpdateOrderDTO) *shared.PipeRes[entities.OrderManagement] {
-	userID, orderID, shippingAddress, phoneNumber := dto.UserID, dto.OrderID, dto.ShippingAddress, dto.PhoneNumber 
+	userID, shippingAddress, phoneNumber := dto.UserID, dto.ShippingAddress, dto.PhoneNumber 
 
 	_, err := repo_user.UserRepo.QueryByID(ctx, userID)
 	if err != nil {
@@ -33,7 +33,7 @@ func UpdateOrderPipe(ctx context.Context, dto *dtos.UpdateOrderDTO) *shared.Pipe
 		}
 	}
 
-	_, err = order_repo.OrderRepo.QueryByID(ctx, orderID)
+	orderMgt, err := order_repo.OrderRepo.QueryByUserID(ctx, userID)
 	if err != nil {
 		return &shared.PipeRes[entities.OrderManagement]{
 			Success: false,
@@ -42,6 +42,8 @@ func UpdateOrderPipe(ctx context.Context, dto *dtos.UpdateOrderDTO) *shared.Pipe
 	}
 
 	updatedOrder := &entities.OrderManagement{
+		ID:          		 orderMgt.ID,
+		UserID:          cart.UserID,
 		ShippingAddress: shippingAddress,
 		PhoneNumber:   	 phoneNumber,
 		CartTotal:       cart.TotalAmount,
@@ -57,7 +59,7 @@ func UpdateOrderPipe(ctx context.Context, dto *dtos.UpdateOrderDTO) *shared.Pipe
 
 	return &shared.PipeRes[entities.OrderManagement]{
 		Success: true,
-		Message: order_messages.SUCCESS_CREATE_ORDER,
+		Message: order_messages.SUCCESS_UPDATE_ORDER,
 		Data: order,
 	}
 }

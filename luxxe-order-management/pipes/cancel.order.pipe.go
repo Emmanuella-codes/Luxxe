@@ -36,7 +36,7 @@ func CancelOrderPipe(ctx context.Context, dto *dtos.CancelOrderDTO) *shared.Pipe
 	if err != nil {
 		return &shared.PipeRes[EmptyStruct]{
 			Success: false,
-			Message: order_messages.FAIL_UPDATE_ORDER,
+			Message: order_messages.FAIL_CANCEL_ORDER,
 			Data:    &EmptyStruct{},
 		}
 	}

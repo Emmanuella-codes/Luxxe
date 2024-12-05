@@ -6,9 +6,11 @@ import (
 	auth_messages "github.com/Emmanuella-codes/Luxxe/luxxe-auth/messages"
 	"github.com/Emmanuella-codes/Luxxe/luxxe-auth/services"
 	cart_messages "github.com/Emmanuella-codes/Luxxe/luxxe-cart/messages"
+	order_messages "github.com/Emmanuella-codes/Luxxe/luxxe-order-management/messages"
 	"github.com/Emmanuella-codes/Luxxe/luxxe-order-management/dtos"
 	"github.com/Emmanuella-codes/Luxxe/luxxe-order-management/pipes"
 	cart_repo "github.com/Emmanuella-codes/Luxxe/luxxe-repositories/cart"
+	order_repo "github.com/Emmanuella-codes/Luxxe/luxxe-repositories/order"
 	repo_user "github.com/Emmanuella-codes/Luxxe/luxxe-repositories/user"
 	shared_api "github.com/Emmanuella-codes/Luxxe/luxxe-shared/api"
 )
@@ -100,6 +102,30 @@ func updateOrder(ctx *fiber.Ctx) error {
 	}
   UpdateOrder.UserID = userID
 
+	cart, err := cart_repo.CartRepo.QueryByUserID(ctx.Context(), userID)
+  if err != nil {
+		statusCode = fiber.StatusBadRequest
+		return ctx.Status(statusCode).JSON(
+			fiber.Map{
+				"statusCode": statusCode,
+				"message":    cart_messages.NOT_FOUND_CART,
+			},
+		)
+	}
+	UpdateOrder.CartID = cart.ID.Hex()
+
+	order, err := order_repo.OrderRepo.QueryByUserID(ctx.Context(), userID)
+	if err != nil {
+		statusCode = fiber.StatusBadRequest
+		return ctx.Status(statusCode).JSON(
+			fiber.Map{
+				"statusCode": statusCode,
+				"message":    order_messages.FAIL_GET_ORDER,
+			},
+		)
+	}
+	UpdateOrder.OrderID = order.ID.Hex()
+
   success, err := shared_api.ValidateAPIData(UpdateOrder)
 	if !success {
 		return ctx.Status(fiber.StatusBadRequest).JSON(
@@ -111,6 +137,7 @@ func updateOrder(ctx *fiber.Ctx) error {
 			},
 		)
 	}
+
   res := pipes.UpdateOrderPipe(ctx.Context(), UpdateOrder)
   if res.Success {
 		statusCode = fiber.StatusOK
@@ -190,9 +217,9 @@ func getOrder(ctx *fiber.Ctx) error {
 func cancelOrder(ctx *fiber.Ctx) error {
   CancelOrder := new(dtos.CancelOrderDTO)
 
-  if err := ctx.BodyParser(CancelOrder); err != nil {
-		return err
-	}
+  // if err := ctx.BodyParser(CancelOrder); err != nil {
+	// 	return err
+	// }
 
   AccountToken := ctx.Locals("token").(*services.AccountTokenStruct)
 	userID := AccountToken.UserID
