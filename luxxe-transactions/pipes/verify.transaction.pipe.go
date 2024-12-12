@@ -62,6 +62,7 @@ func VerifyTransactionPipe(ctx context.Context, dto *dtos.VerifyTransactionDTO) 
 			Success:  true,
 			HookData: "transaction successful",
 			Message:  messages.SUCCESS_VERIFY_TRANSACTION,
+			Data:     transaction,
 		}
 	}
 
@@ -91,8 +92,42 @@ func VerifyTransactionPipe(ctx context.Context, dto *dtos.VerifyTransactionDTO) 
 		)
 	}
 
-	failed := !success && !pending
-	if success {
-		go transactions_services.
+	var updatedTransaction *entities.Transaction
+	var updateErr error
+
+	switch {
+	case success:
+			updatedTransaction, updateErr = transaction_repo.TransactionRepo.UpdateTransactionStatus(
+					ctx, 
+					transaction.ID.Hex(), 
+					entities.PmtTxStatusSuccess,
+			)
+	case pending:
+			updatedTransaction, updateErr = transaction_repo.TransactionRepo.UpdateTransactionStatus(
+					ctx, 
+					transaction.ID.Hex(), 
+					entities.PmtTxStatusPending,
+			)
+	default: // failed
+			updatedTransaction, updateErr = transaction_repo.TransactionRepo.UpdateTransactionStatus(
+					ctx, 
+					transaction.ID.Hex(), 
+					entities.PmtTxStatusFailed,
+			)
 	}
+
+	if updateErr != nil {
+		return &shared.PipeRes[entities.Transaction]{
+			Success:  false,
+			HookData: "failed to update transaction status",
+			Message:  messages.FAIL_UPDATE_TRANSACTION_STATUS,
+		}
+	}
+
+	return &shared.PipeRes[entities.Transaction]{
+		Success:   true,
+		HookData: "transaction verified",
+		Message:  messages.SUCCESS_VERIFY_TRANSACTION,
+		Data:     updatedTransaction,
+}
 }

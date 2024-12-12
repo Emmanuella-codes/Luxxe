@@ -17,7 +17,7 @@ import (
 func CreateOrderPipe(ctx context.Context, dto *dtos.CreateOrderDTO) *shared.PipeRes[entities.OrderManagement] {
 	userIDStr,  shippingAddress, phoneNumber := dto.UserID, dto.ShippingAddress, dto.PhoneNumber
 
-	_, error := repo_user.UserRepo.QueryByID(ctx, userIDStr)
+	user, error := repo_user.UserRepo.QueryByID(ctx, userIDStr)
 	if error != nil {
 		return &shared.PipeRes[entities.OrderManagement]{
 			Success: false,
@@ -40,6 +40,7 @@ func CreateOrderPipe(ctx context.Context, dto *dtos.CreateOrderDTO) *shared.Pipe
 		PhoneNumber: 			phoneNumber,
 		OrderStatus:      entities.OrderStatusPending,
 		CartTotal:        cart.TotalAmount,
+		Email:            user.Email,
 	}
 
 	order, err := order_repo.OrderRepo.Create(ctx, orderObj)

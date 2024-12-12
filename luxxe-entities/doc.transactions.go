@@ -14,7 +14,7 @@ const PmtTxCtxOrder PmtTransactionCtx = "order"
 
 type PmtTransactionInitiatorCtx string
 
-const PmtTxInitCtxAccount PmtTransactionInitiatorCtx = "account"
+const PmtTxInitCtxUser PmtTransactionInitiatorCtx = "user"
 
 type PaymentClient string
 
@@ -28,6 +28,7 @@ const PmtTxStatusFailed  PmtTransactionStatus = "failed"
 
 type Transaction struct {
 	ID                        	 primitive.ObjectID      		`json:"_id" bson:"_id"`
+	UserID    									 primitive.ObjectID 				`json:"userID" bson:"userID"`
 	PmtTransactionCtx            PmtTransactionCtx          `json:"pmtTransactionCtx" bson:"pmtTransactionCtx"`
 	PmtTransactionCtxID          primitive.ObjectID      		`json:"pmtTransactionCtxID" bson:"pmtTransactionCtxID"`
 	PmtTransactionInitiatorCtx   PmtTransactionInitiatorCtx `json:"pmtTransactionInitiatorCtx" bson:"pmtTransactionInitiatorCtx"`

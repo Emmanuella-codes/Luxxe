@@ -11,15 +11,25 @@ import (
 type OrderStatus string
 
 const (
-	OrderStatusPending 	 OrderStatus = "pending"
-	OrderStatusShipped 	 OrderStatus = "shipped"
-	OrderStatusDelivered OrderStatus = "delivered"
+	OrderStatusPending 	    OrderStatus = "pending"
+	OrderStatusProcessing 	OrderStatus = "processing"
+	OrderStatusShipped 	    OrderStatus = "shipped"
+	OrderStatusDelivered    OrderStatus = "delivered"
+)
+
+type OrderCtx string
+
+const (
+	TransactionOrderCtx OrderCtx = "transaction"
 )
 
 type OrderManagement struct {
 	ID        			primitive.ObjectID 	`json:"_id" bson:"_id"`
 	UserID    			primitive.ObjectID 	`json:"userID" bson:"userID"`
+	Email           string              `json:"email" bson:"email"`
 	CartID 					primitive.ObjectID  `json:"cartID" bson:"cartID"`
+	OrderCtx 				primitive.ObjectID 	`json:"orderCtx" bson:"orderCtx"`
+	OrderCtxID 			primitive.ObjectID 	`json:"orderCtxID" bson:"orderCtxID"`
 	ShippingAddress string 							`json:"shippingAddress" bson:"shippingAddress"`
 	PhoneNumber 		string 							`json:"phoneNumber" bson:"phoneNumber"`
 	OrderStatus 		OrderStatus 				`json:"orderStatus" bson:"orderStatus"`

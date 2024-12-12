@@ -257,6 +257,11 @@ func (r *mgRepository) QueryByUserID(ctx context.Context, userID string) (*entit
 	return cart, nil
 }
 
+func (r *mgRepository) QueryByID(ctx context.Context, cartID string) (*entities.Cart, error) {
+	return entities.CartItemModel.FindById(ctx, cartID)
+
+}
+
 func (r *mgRepository) ClearCart(ctx context.Context, userID string) error {
 	userIDObj, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
