@@ -13,12 +13,13 @@ import (
 
 	auth_api "github.com/Emmanuella-codes/Luxxe/luxxe-auth/api"
 	cart_api "github.com/Emmanuella-codes/Luxxe/luxxe-cart/api"
-	order_api "github.com/Emmanuella-codes/Luxxe/luxxe-order-management/api"
 	config "github.com/Emmanuella-codes/Luxxe/luxxe-config"
 	entities "github.com/Emmanuella-codes/Luxxe/luxxe-entities"
+	order_api "github.com/Emmanuella-codes/Luxxe/luxxe-order-management/api"
 	product_api "github.com/Emmanuella-codes/Luxxe/luxxe-product/api"
 	user_api "github.com/Emmanuella-codes/Luxxe/luxxe-profile/api"
 	shared_api "github.com/Emmanuella-codes/Luxxe/luxxe-shared/api"
+	transaction_api "github.com/Emmanuella-codes/Luxxe/luxxe-transactions/api"
 )
 
 func GenerateApp() *fiber.App {
@@ -98,6 +99,9 @@ func GenerateApp() *fiber.App {
 
 	orderGroup := app.Group("/order")
 	shared_api.BaseRouter(orderGroup, order_api.OrderRoutes)
+
+	transactionGroup := app.Group("/transaction")
+	shared_api.BaseRouter(transactionGroup, transaction_api.TransactionsRoutes)
 
 	return app
 }
