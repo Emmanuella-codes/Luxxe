@@ -31,4 +31,10 @@ var OrderRoutes = []shared.RouterSchema{
 		Middlewares: []typings.FiberMiddleware{services.BaseAuthToken, services.IsAnyUserMiddleware},
 		Handler: 		 cancelOrder,
 	},
+	{
+		RouteMethod: shared.RouteMethodPost,
+		Path:   		 "/checkout",
+		Middlewares: []typings.FiberMiddleware{services.BaseAuthToken, services.IsAnyUserMiddleware},
+		Handler: 		 placeOrder,
+	},
 }

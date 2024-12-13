@@ -265,3 +265,55 @@ func cancelOrder(ctx *fiber.Ctx) error {
 		},
 	)
 }
+
+func placeOrder(ctx *fiber.Ctx) error {
+	PlaceOrder := new(dtos.PlaceOrderDTO)
+
+	if err := ctx.BodyParser(PlaceOrder); err != nil {
+		return err
+	}
+
+  AccountToken := ctx.Locals("token").(*services.AccountTokenStruct)
+	userID := AccountToken.UserID
+
+  var statusCode int
+	_, err := repo_user.UserRepo.QueryByID(ctx.Context(), userID)
+	if err != nil {
+		statusCode = fiber.StatusBadRequest
+		return ctx.Status(statusCode).JSON(
+			fiber.Map{
+				"statusCode": statusCode,
+				"message":    auth_messages.NOT_FOUND_USER,
+			},
+		)
+	}
+  PlaceOrder.UserID = userID
+
+	success, err := shared_api.ValidateAPIData(PlaceOrder)
+	if !success {
+		return ctx.Status(fiber.StatusBadRequest).JSON(
+			fiber.Map{
+				"statusCode": fiber.StatusBadRequest,
+				"message":    "Invalid request data",
+				"payload":    map[string]string{},
+				"error":      err.Error(),
+			},
+		)
+	}
+
+	res := pipes.PlaceOrderPipe(ctx.Context(), PlaceOrder)
+	if res.Success {
+		statusCode = fiber.StatusOK
+	} else {
+		statusCode = fiber.StatusBadRequest
+	}
+
+	return ctx.Status(statusCode).JSON(
+		fiber.Map{
+			"statusCode": statusCode,
+			"message":    res.Message,
+			"payload":    res.Data,
+			"token":      res.Token,
+		},
+	)
+}
