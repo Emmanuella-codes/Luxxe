@@ -37,8 +37,9 @@ func verifyTransactionPaystack(
 	paymentClientFetchSingleResponse ...transaction_types.PaymentClientFetchSingleResponse,
 ) (bool, bool, transaction_types.PaystackResponse[transaction_types.PaystackStandardVerificationResponseData]) {
 	secretKey := config.EnvConfig.PAYSTACK_TEST_SECRET_KEY
-	if config.EnvConfig.APP_ENV == "prodction" {
-		secretKey = config.EnvConfig.PAYSTACK_LIVE_SECRET_KEY
+	if config.EnvConfig.APP_ENV == "production" {
+		secretKey = config.EnvConfig.PAYSTACK_TEST_SECRET_KEY
+		// secretKey = config.EnvConfig.PAYSTACK_LIVE_SECRET_KEY
 	}
 
 	res := transaction_types.PaystackResponse[transaction_types.PaystackStandardVerificationResponseData]{}

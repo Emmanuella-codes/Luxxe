@@ -33,8 +33,8 @@ type Config struct {
 	MAILDATASENDER               string
 	ADMIN_KEY										 string
 	PAYSTACK_API                 string
-	PAYSTACK_LIVE_SECRET_KEY     string
-	PAYSTACK_LIVE_PUBLIC_KEY     string
+	// PAYSTACK_LIVE_SECRET_KEY     string
+	// PAYSTACK_LIVE_PUBLIC_KEY     string
 	PAYSTACK_TEST_SECRET_KEY     string
 	PAYSTACK_TEST_PUBLIC_KEY     string
 	// MAILDATASENDERNAME           string

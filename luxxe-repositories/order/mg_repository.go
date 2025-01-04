@@ -25,7 +25,7 @@ func newMgRepository(log *log.Logger) OrderRepository {
 }
 
 func (r *mgRepository) Create(ctx context.Context, order *entities.OrderManagement) (*entities.OrderManagement, error) {
-	userID, cartID, shippingAddress, phoneNumber := order.UserID, order.CartID, order.ShippingAddress, order.PhoneNumber
+	userID, cartID, shippingAddress, phoneNumber, email := order.UserID, order.CartID, order.ShippingAddress, order.PhoneNumber, order.Email
 
 	return entities.OrderManagementModel.Create(
 		ctx,
@@ -34,6 +34,7 @@ func (r *mgRepository) Create(ctx context.Context, order *entities.OrderManageme
 			"cartID": 				 cartID,
 			"shippingAddress": shippingAddress,
 			"phoneNumber": 		 phoneNumber,
+			"email": 				   email,
 			"orderStatus":     order.OrderStatus,
 			"cartTotal":       order.CartTotal,
 			"createdAt": 			 time.Now(),
@@ -111,7 +112,7 @@ func (r *mgRepository) QueryByID(ctx context.Context, orderID string) (*entities
 		return nil, fmt.Errorf("invalid order ID: %w", err)
 	}
 
-	filter := &primitive.M{"orderID": orderIDObj}
+	filter := &primitive.M{"_id": orderIDObj}
 	order, err := entities.OrderManagementModel.FindOne(ctx, filter)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find order: %w", err)

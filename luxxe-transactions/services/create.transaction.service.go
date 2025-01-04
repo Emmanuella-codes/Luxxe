@@ -2,6 +2,8 @@ package services
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"time"
 
 	auth_services "github.com/Emmanuella-codes/Luxxe/luxxe-auth/services"
@@ -13,6 +15,14 @@ import (
 )
 
 func CreateTransactionService(ctx context.Context, dto *dtos.CreateTransactionDTO) (*entities.Transaction, error) {
+	if dto == nil {
+		return nil, errors.New("transaction DTO cannot be nil")
+	}
+
+	if dto.PmtTransactionCtx == "" || dto.PmtTransactionCtxID == "" || dto.PmtTransactionInitiatorCtxID == "" || dto.PaymentClient == "" {
+		return nil, fmt.Errorf("missing required fields in transaction DTO")
+	}
+
 	pmtTransactionCtx 							:= dto.PmtTransactionCtx
 	pmtTransactionCtxIDStr 					:= dto.PmtTransactionCtxID
 	pmtTransactionInitiatorCtx 			:= dto.PmtTransactionInitiatorCtx
@@ -31,8 +41,14 @@ func CreateTransactionService(ctx context.Context, dto *dtos.CreateTransactionDT
 	txRefSuffix := txRefSuffCaps + txRefSuffSmall + txRefSuffNums
 	transactionReference := txRefPrefix + txRefSuffix
 
-	pmtTransactionCtxID := misc.StringToObjectID(pmtTransactionCtxIDStr)
-	pmtTransactionInitiatorID := misc.StringToObjectID(pmtTransactionInitiatorCtxIDStr)
+	pmtTransactionCtxID, err := misc.StringToObjectID(pmtTransactionCtxIDStr)
+	if err != nil {
+    return nil, fmt.Errorf("invalid PmtTransactionCtxID: %v", err)
+	}
+	pmtTransactionInitiatorID, err := misc.StringToObjectID(pmtTransactionInitiatorCtxIDStr)
+	if err != nil {
+    return nil, fmt.Errorf("invalid PmtTransactionInitiatorCtxID: %v", err)
+}
 
 	transaction := entities.Transaction{
 		ID: 													primitive.NewObjectID(),
@@ -48,5 +64,10 @@ func CreateTransactionService(ctx context.Context, dto *dtos.CreateTransactionDT
 		Meta: 												meta,
 		CreatedAt: 										time.Now(),
 	}
+
+	if transaction_repo.TransactionRepo == nil {
+		return nil, fmt.Errorf("transaction repository is nil")
+	}
+
 	return transaction_repo.TransactionRepo.Create(ctx, &transaction)
 }

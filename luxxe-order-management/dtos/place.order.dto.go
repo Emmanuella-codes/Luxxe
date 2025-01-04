@@ -9,7 +9,7 @@ type CartItemsDTO struct {
 }
 
 type CartDTO struct {
-	CartID    string  				`json:"CartID" validate:"required"`
+	CartID    string  				`json:"cartID" validate:"required"`
 	CartItems []CartItemsDTO 	`json:"cartItems"`
 }
 

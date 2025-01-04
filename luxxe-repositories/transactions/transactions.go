@@ -29,6 +29,6 @@ type TransactionRepository interface {
 
 var TransactionRepo TransactionRepository
 
-func initTransactionRepo(logger *log.Logger) {
+func InitTransactionRepo(logger *log.Logger) {
 	TransactionRepo = newMgRepository(logger)
 }

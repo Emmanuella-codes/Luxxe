@@ -1,11 +1,15 @@
 package misc
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"fmt"
 
-func StringToObjectID(idStr string) primitive.ObjectID {
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
+
+func StringToObjectID(idStr string) (primitive.ObjectID, error) {
 	id, err := primitive.ObjectIDFromHex(idStr)
 	if err != nil {
-		return primitive.NilObjectID
+		return primitive.NilObjectID, fmt.Errorf("invalid objectID: %v", err)
 	}
-	return id
+	return id, nil
 }

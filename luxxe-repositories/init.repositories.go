@@ -7,6 +7,7 @@ import (
 	"github.com/Emmanuella-codes/Luxxe/luxxe-repositories/order"
 	"github.com/Emmanuella-codes/Luxxe/luxxe-repositories/product"
 	"github.com/Emmanuella-codes/Luxxe/luxxe-repositories/tempstore"
+	"github.com/Emmanuella-codes/Luxxe/luxxe-repositories/transactions"
 	"github.com/Emmanuella-codes/Luxxe/luxxe-repositories/user"
 	"github.com/go-kit/log"
 )
@@ -18,4 +19,5 @@ func InitRepositories() {
 	product.InitProductRepo(&logger)
 	cart.InitCartRepo(&logger)
 	order.InitOrderRepo(&logger)
+	transactions.InitTransactionRepo(&logger)
 }

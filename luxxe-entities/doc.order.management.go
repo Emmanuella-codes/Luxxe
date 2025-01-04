@@ -28,8 +28,8 @@ type OrderManagement struct {
 	UserID    			primitive.ObjectID 	`json:"userID" bson:"userID"`
 	Email           string              `json:"email" bson:"email"`
 	CartID 					primitive.ObjectID  `json:"cartID" bson:"cartID"`
-	OrderCtx 				primitive.ObjectID 	`json:"orderCtx" bson:"orderCtx"`
-	OrderCtxID 			primitive.ObjectID 	`json:"orderCtxID" bson:"orderCtxID"`
+	// OrderCtx 				primitive.ObjectID 	`json:"orderCtx" bson:"orderCtx"`
+	// OrderCtxID 			primitive.ObjectID 	`json:"orderCtxID" bson:"orderCtxID"`
 	ShippingAddress string 							`json:"shippingAddress" bson:"shippingAddress"`
 	PhoneNumber 		string 							`json:"phoneNumber" bson:"phoneNumber"`
 	OrderStatus 		OrderStatus 				`json:"orderStatus" bson:"orderStatus"`
