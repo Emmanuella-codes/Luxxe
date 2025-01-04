@@ -14,6 +14,7 @@ const FAIL_CANCEL_ORDER shared.PipeMessage = "fail_cancel_order"
 const SUCCESS_FOUND_ORDER shared.PipeMessage = "success_found_order"
 const SUCCESS_GET_ORDER shared.PipeMessage = "success_get_order"
 const SUCCESS_CREATE_ORDER shared.PipeMessage = "success_create_order"
+const SUCCESS_PLACE_ORDER shared.PipeMessage = "success_place_order"
 const SUCCESS_UPDATE_ORDER shared.PipeMessage = "success_update_order"
 const SUCCESS_CANCEL_ORDER shared.PipeMessage = "success_cancel_order"
 

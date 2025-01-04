@@ -8,4 +8,5 @@ func InitModels() {
 	initProduct()
 	initCartItem()
 	initOrderManagement()
+	initTransaction()
 }

@@ -22,6 +22,7 @@ type Config struct {
 	DB_NAME                      string
 	MONGODB_URI                  string
 	PORT                         string
+	APP_ENV                      string
 	ENV                          ServerEnvironment
 	API_DOCUMENTATION_URL        string
 	BACKEND_ROUTE                string
@@ -31,6 +32,11 @@ type Config struct {
 	GMAIL_PASSWORD						 	 string
 	MAILDATASENDER               string
 	ADMIN_KEY										 string
+	PAYSTACK_API                 string
+	// PAYSTACK_LIVE_SECRET_KEY     string
+	// PAYSTACK_LIVE_PUBLIC_KEY     string
+	PAYSTACK_TEST_SECRET_KEY     string
+	PAYSTACK_TEST_PUBLIC_KEY     string
 	// MAILDATASENDERNAME           string
 	// MAILDATARECIPIENTNAME        string
 	// MAILDATARECIPIENT            string

@@ -9,6 +9,7 @@ const FAIL_GET_PRODUCT shared.PipeMessage = "fail_get_product"
 const FAIL_GET_PRODUCT_BY_CATEGORY shared.PipeMessage = "fail_get_product_by_category"
 const FAIL_CREATE_PRODUCT shared.PipeMessage = "fail_create_product"
 const FAIL_UPDATE_PRODUCT shared.PipeMessage = "fail_update_product"
+const INSUFFICIENT_PRODUCT_QUANTITY shared.PipeMessage = "insufficient_product_quantity"
 
 
 // +

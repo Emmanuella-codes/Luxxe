@@ -2,6 +2,7 @@ package pipes
 
 import (
 	"context"
+	// "fmt"
 
 	cart_messages "github.com/Emmanuella-codes/Luxxe/luxxe-cart/messages"
 	entities "github.com/Emmanuella-codes/Luxxe/luxxe-entities"
@@ -17,13 +18,14 @@ import (
 func CreateOrderPipe(ctx context.Context, dto *dtos.CreateOrderDTO) *shared.PipeRes[entities.OrderManagement] {
 	userIDStr,  shippingAddress, phoneNumber := dto.UserID, dto.ShippingAddress, dto.PhoneNumber
 
-	_, error := repo_user.UserRepo.QueryByID(ctx, userIDStr)
+	user, error := repo_user.UserRepo.QueryByID(ctx, userIDStr)
 	if error != nil {
 		return &shared.PipeRes[entities.OrderManagement]{
 			Success: false,
 			Message: user_messages.NOT_FOUND_USER,
 		}
 	}
+	
 
 	cart, err := cart_repo.CartRepo.QueryByUserID(ctx, userIDStr)
 	if err != nil {
@@ -38,6 +40,7 @@ func CreateOrderPipe(ctx context.Context, dto *dtos.CreateOrderDTO) *shared.Pipe
 		CartID:       		cart.ID,
 		ShippingAddress: 	shippingAddress,
 		PhoneNumber: 			phoneNumber,
+		Email:            user.Email,
 		OrderStatus:      entities.OrderStatusPending,
 		CartTotal:        cart.TotalAmount,
 	}

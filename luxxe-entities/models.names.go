@@ -10,4 +10,5 @@ const (
 	ModelNamesProduct         ModelNames = "product"
 	ModelNamesCart            ModelNames = "cart"
 	ModelNamesOrderManagement ModelNames = "ordermanagement"
+	ModelNamesTransactions		ModelNames = "transactions"
 )
